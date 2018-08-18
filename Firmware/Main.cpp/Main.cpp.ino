@@ -2,7 +2,7 @@
 #include "RythmManager.h"
 #include "DisplayManager.h"
 #include "Logic.h"
-
+#include "ios.h"
 
 
 ISR(TIMER1_COMPA_vect) // timer1 interrupt. systick. 100uS
@@ -14,6 +14,8 @@ ISR(TIMER1_COMPA_vect) // timer1 interrupt. systick. 100uS
 
 void setup()   {                
   Serial.begin(9600);
+
+  ios_init();
 
   display_init();
 

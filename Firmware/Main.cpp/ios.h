@@ -18,4 +18,6 @@
 
 void ios_setLo(int triggerNumber);
 void ios_setHi(int triggerNumber);
+void ios_init(void);
+
 
