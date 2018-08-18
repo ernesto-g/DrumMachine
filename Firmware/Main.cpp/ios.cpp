@@ -11,6 +11,25 @@ void ios_init(void)
   pinMode(PIN_TRIGGER_HC_2, OUTPUT);
   pinMode(PIN_TRIGGER_CB_CV, OUTPUT);
   pinMode(PIN_TRIGGER_T0, OUTPUT);
+
+  // configure SW pins as input
+  pinMode(PIN_SW_ENTER,INPUT);
+  pinMode(PIN_SW_ESC,INPUT);
+  pinMode(PIN_SW_SHIFT,INPUT);
+  pinMode(PIN_SW_PLAY_WRITE,INPUT);
+  // configure SW pins pullups
+  digitalWrite(PIN_SW_ENTER,HIGH);
+  digitalWrite(PIN_SW_ESC,HIGH);
+  digitalWrite(PIN_SW_SHIFT,HIGH);
+  digitalWrite(PIN_SW_PLAY_WRITE,HIGH);
+   
+
+}
+
+
+int ios_readSw(int swPin)
+{
+    return digitalRead(swPin);
 }
 
 void ios_setLo(int triggerNumber)

@@ -3,12 +3,24 @@
 #include "DisplayManager.h"
 #include "Logic.h"
 #include "ios.h"
+#include "FrontPanel.h"
 
-
+static volatile unsigned char tickDivider=0;
 ISR(TIMER1_COMPA_vect) // timer1 interrupt. systick. 100uS
 {
+    // 100uS base time
     rthm_tick();
     inst_tick();
+    //_______________
+    
+    // 1ms base time
+    tickDivider++;
+    if(tickDivider==10) 
+    {
+        tickDivider=0;
+        frontp_tick1Ms();
+    }
+    //_____________
 }
 
 
@@ -16,11 +28,11 @@ void setup()   {
   Serial.begin(9600);
 
   ios_init();
-
   display_init();
-
+  frontp_init();
   inst_init();
   rthm_init();
+  
 
   // initialize timer1 (systick)
   noInterrupts();           // disable all interrupts

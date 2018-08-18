@@ -31,7 +31,7 @@ void rthm_init(void)
         patterns[i][j]=0x0000;
   }
 
-  rthm_setTempo(250);
+  rthm_setTempo(75);
   stepLen=16;
   patternIndex=0;
   flagNewStepFinished=0;
@@ -42,7 +42,12 @@ void rthm_init(void)
   //patterns[0][INSTR_CH]=0xFFFF;
   //patterns[0][INSTR_CB]=0xFF55;
   //patterns[0][INSTR_CB]=0xFFFF;
-  patterns[0][INSTR_CH]=0xFFFF;
+  
+  //patterns[0][INSTR_HC]=B10001000<<8 | B10001000; //0xFFFF;
+  //patterns[0][INSTR_SD]=B00010000<<8 | B00010000;
+  //patterns[0][INSTR_BD]=B01100111<<8 | B01100111;
+
+  patterns[0][INSTR_SD]=B10010001<<8 | B10010001;
 }
 
 

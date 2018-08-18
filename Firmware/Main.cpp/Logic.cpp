@@ -2,6 +2,7 @@
 #include "RythmManager.h"
 #include "DisplayManager.h"
 #include "Logic.h"
+#include "FrontPanel.h"
 
 static int flagForceScreenUpdate;
 
@@ -12,6 +13,7 @@ void logic_init(void)
 
 void logic_loop(void)
 {
+    frontp_loop();
     rthm_loop();
     inst_loop();
     display_loop();

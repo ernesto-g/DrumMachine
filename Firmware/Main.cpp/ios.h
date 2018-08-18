@@ -16,8 +16,17 @@
 #define PIN_TRIGGER_CB_CV 7 
 #define PIN_TRIGGER_T0    6
 
+#define PIN_SW_ENTER      2
+#define PIN_SW_ESC        3
+#define PIN_SW_SHIFT      5
+#define PIN_SW_PLAY_WRITE 4
+
+
+
 void ios_setLo(int triggerNumber);
 void ios_setHi(int triggerNumber);
+int ios_readSw(int swPin);
+
 void ios_init(void);
 
 
