@@ -47,7 +47,8 @@ void rthm_init(void)
   //patterns[0][INSTR_SD]=B00010000<<8 | B00010000;
   //patterns[0][INSTR_BD]=B01100111<<8 | B01100111;
 
-  patterns[0][INSTR_SD]=B10010001<<8 | B10010001;
+  patterns[0][INSTR_BD]=B10101010<<8 | B10101010;
+  patterns[0][INSTR_SD]=B01010101<<8 | B01010101;
 }
 
 

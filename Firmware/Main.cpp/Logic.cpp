@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include "InstrumentsManager.h"
 #include "RythmManager.h"
 #include "DisplayManager.h"
@@ -31,6 +32,27 @@ void logic_loop(void)
       }
     }
     //_________________________________________________
+
+    // prueba sw
+    int state = frontp_getSwState(SW_ENTER);
+    switch(state)
+    {
+        case FRONT_PANEL_SW_STATE_JUST_PRESSED:
+        Serial.println("JP");
+        frontp_resetSwState(SW_ENTER);
+        break;
+        case FRONT_PANEL_SW_STATE_SHORT:
+        Serial.println("pulsada corta");
+        frontp_resetSwState(SW_ENTER);
+        break;
+        case FRONT_PANEL_SW_STATE_LONG:
+        Serial.println("pulsada larga");
+        frontp_resetSwState(SW_ENTER);
+        break;
+    }
+    
+
+
     
 }
 

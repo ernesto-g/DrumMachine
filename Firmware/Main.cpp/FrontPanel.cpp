@@ -14,7 +14,8 @@
 #define STATE_WAIT_BOUNCE           2
 #define STATE_PRESS_CONFIRMED       3
 #define STATE_WAIT_RELEASE          4
-#define STATE_WAIT_BOUNCE_RELEASE   5
+#define STATE_WAIT_RELEASE2         5
+#define STATE_WAIT_BOUNCE_RELEASE   6
 
 
 static RotaryEncoder encoder(A2, A3);
@@ -136,7 +137,7 @@ static void swStateMachine(int swIndex)
         }
         case STATE_WAIT_RELEASE:
         {
-            if(ios_readSw(getPin(swIndex))==HIGH)
+            if(ios_readSw(getPin(swIndex))==HIGH) // released
             {
                 // released, check time
                 if(timeouts[swIndex]<TIMEOUT_SHORT_PRESS)
@@ -147,7 +148,23 @@ static void swStateMachine(int swIndex)
                 timeouts[swIndex]=0;
                 state[swIndex] = STATE_WAIT_BOUNCE_RELEASE;                
             }
+            if(timeouts[swIndex]>TIMEOUT_LONG_PRESS)
+            {
+                switchesState[swIndex] = FRONT_PANEL_SW_STATE_LONG;
+                state[swIndex] = STATE_WAIT_RELEASE2;
+            }
+            
             break;
+        }
+        case STATE_WAIT_RELEASE2:
+        {
+            if(ios_readSw(getPin(swIndex))==HIGH) // released
+            {
+                // wait bounce again
+                timeouts[swIndex]=0;
+                state[swIndex] = STATE_WAIT_BOUNCE_RELEASE;
+            }          
+            break; 
         }
         case STATE_WAIT_BOUNCE_RELEASE:
         {
