@@ -33,7 +33,8 @@ void logic_loop(void)
     }
     //_________________________________________________
 
-    // prueba sw
+    
+    // test sw
     int state = frontp_getSwState(SW_ENTER);
     switch(state)
     {
@@ -49,7 +50,12 @@ void logic_loop(void)
         Serial.println("pulsada larga");
         frontp_resetSwState(SW_ENTER);
         break;
+        case FRONT_PANEL_SW_STATE_JUST_RELEASED:
+        Serial.println("JR");
+        frontp_resetSwState(SW_ENTER);
+        break;
     }
+    
     
 
 

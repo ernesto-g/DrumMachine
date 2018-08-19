@@ -81,6 +81,8 @@ void setup()   {
 
 
   display_showMainScreen();
+
+  Serial.print("DRUM MACHINE INIT OK");
 }
 
 

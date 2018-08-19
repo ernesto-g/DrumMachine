@@ -18,7 +18,7 @@
 #define STATE_WAIT_BOUNCE_RELEASE   6
 
 
-static RotaryEncoder encoder(A2, A3);
+static RotaryEncoder encoder(A3, A2);
 static unsigned char state[LEN_SW];
 static unsigned char switchesState[LEN_SW];
 static volatile unsigned int timeouts[LEN_SW];
@@ -41,6 +41,7 @@ void frontp_tick1Ms(void)
 // This routine will only be called on any signal change on A2 and A3: exactly where we need to check.
 ISR(PCINT1_vect) {
   encoder.tick(); // just call tick() to check the state.
+
 }
 
 void frontp_init(void)
@@ -50,16 +51,29 @@ void frontp_init(void)
     PCMSK1 |= (1 << PCINT10) | (1 << PCINT11);  // This enables the interrupt for pin 2 and 3 of Port C.
 }
 
+int frontp_getEncoderPosition(void)
+{
+    return encoder.getPosition();
+}
+
+void frontp_setEncoderPosition(int pos)
+{
+    encoder.setPosition(pos);
+}
+
 void frontp_loop(void)
 {
+    /*
     static int pos = 0;
     int newPos = encoder.getPosition();
+    //Serial.println(newPos);
     if (pos != newPos) {
       Serial.print(newPos);
       Serial.println();
       pos = newPos;
     }
-
+    */
+    
     int i;
     for(i=0;i<LEN_SW; i++)
       swStateMachine(i);
@@ -169,7 +183,10 @@ static void swStateMachine(int swIndex)
         case STATE_WAIT_BOUNCE_RELEASE:
         {
             if(timeouts[swIndex]>=TIMEOUT_BOUNCE)
-              state[swIndex] = STATE_IDLE;    
+            {
+              switchesState[swIndex] = FRONT_PANEL_SW_STATE_JUST_RELEASED;
+              state[swIndex] = STATE_IDLE;
+            }    
             break;
         }
     }

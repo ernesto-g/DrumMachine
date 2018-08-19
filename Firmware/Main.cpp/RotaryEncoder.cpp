@@ -13,7 +13,7 @@
 #include "RotaryEncoder.h"
 
 
-// The array holds the values –1 for the entries where a position was decremented,
+// The array holds the values ï¿½1 for the entries where a position was decremented,
 // a 1 for the entries where the position was incremented
 // and 0 in all the other (no change or not valid) cases.
 
@@ -72,8 +72,12 @@ void RotaryEncoder::tick(void)
   int sig2 = digitalRead(_pin2);
   int8_t thisState = sig1 | (sig2 << 1);
 
+  //Serial.println(thisState);
+
   if (_oldState != thisState) {
     _position += KNOBDIR[thisState | (_oldState<<2)];
+
+    //Serial.println(_position);
     
     if (thisState == LATCHSTATE)
       _positionExt = _position >> 2;
