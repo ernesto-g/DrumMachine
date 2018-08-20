@@ -9,12 +9,20 @@
 #define MODE_WRITING        1
 #define MODE_CONFIGURATION  2
 
+#define WRITING_STATE_INIT  0
+
 static unsigned char flagForceScreenUpdate;
 static unsigned char mode;
 static unsigned char flagSwShiftState;
+static unsigned char flagSwShiftState0;
 static unsigned char currentPattern;
 static unsigned char selectedInstrument;
 static unsigned char instrumentEncoder0;
+static unsigned char patternToWrite;
+static unsigned char patternEncoder0;
+static unsigned char patternToWriteStep;
+static unsigned char writingState;
+
 
 static void stateMachineModePlaying(void);
 static void stateMachineModeWriting(void);
@@ -28,6 +36,14 @@ void logic_init(void)
     currentPattern = 0;
     selectedInstrument=0;
     instrumentEncoder0=-1;
+    patternToWrite=0;
+    patternEncoder0=-1;
+    patternToWriteStep=0;
+
+    flagSwShiftState0=0;
+    flagSwShiftState=0;
+
+    writingState = WRITING_STATE_INIT;
 }
 
 void logic_loop(void)
@@ -76,12 +92,20 @@ void logic_loop(void)
 
     // shift sw
     if(frontp_getSwState(SW_SHIFT)==FRONT_PANEL_SW_STATE_JUST_PRESSED)
-      flagSwShiftState = 1;
+    {
+        if(flagSwShiftState!=1)
+          logic_forceUpdateScreen();  
+        flagSwShiftState = 1;
+    }
     else if(frontp_getSwState(SW_SHIFT)==FRONT_PANEL_SW_STATE_JUST_RELEASED)
-      flagSwShiftState = 0;
+    {
+       if(flagSwShiftState!=0)
+          logic_forceUpdateScreen();  
+        flagSwShiftState = 0;
+    }
     //_________
 
-    
+
     switch(mode)
     {
         case MODE_PLAYING:
@@ -113,10 +137,24 @@ int logic_getSelectedInstrument(void)
     return selectedInstrument;
 }
 
+int logic_getSwShiftState(void)
+{
+    return flagSwShiftState;
+}
+
+int logic_getWritingPattern(void)
+{
+    return patternToWrite;
+}
+
+int logic_getWritingPatternStep(void)
+{
+    return patternToWriteStep;  
+}
 
 static void stateMachineModePlaying(void)
 {
-    // if play/write sw is pressed, pass to writing mode 
+    // if play/write sw is pressed, pass to writing mode  
     if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
     {
         display_showScreen(SCREEN_WRITING);  
@@ -133,6 +171,7 @@ static void stateMachineModeWriting(void)
     // if play/write sw is pressed, pass to playing mode 
     if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
     {
+        Serial.println("MODO W. Presione playw");
         display_showScreen(SCREEN_PLAYING);  
         logic_forceUpdateScreen();
         mode = MODE_PLAYING;
@@ -141,22 +180,73 @@ static void stateMachineModeWriting(void)
     }
     //__________________________________________________
 
-    // instrument selection
-    int instrumentEncoder = frontp_getEncoderPosition();
-    if(instrumentEncoder>=INSTRUMENTS_LEN)
-      frontp_setEncoderPosition(0);
-    if(instrumentEncoder<0)
-      frontp_setEncoderPosition(INSTRUMENTS_LEN-1);
-      
-    if(instrumentEncoder!=instrumentEncoder0)
+
+    // shift sw changed. set initial value for encoder counter
+    if(flagSwShiftState0!=flagSwShiftState)
     {
-        instrumentEncoder0 = instrumentEncoder;
-        selectedInstrument=1;
-        logic_forceUpdateScreen();
+        flagSwShiftState0=flagSwShiftState;
+        if(flagSwShiftState==0)
+          frontp_setEncoderPosition(instrumentEncoder0);
+        else
+          frontp_setEncoderPosition(patternEncoder0);    
+    }
+    //________________________________________________________
+
+    // instrument selection (shift=false)
+    if(flagSwShiftState==0)
+    {
+        int instrumentEncoder = frontp_getEncoderPosition();
+        if(instrumentEncoder>=INSTRUMENTS_LEN){
+          frontp_setEncoderPosition(0);
+          instrumentEncoder=0;
+        }
+        if(instrumentEncoder<0){
+          frontp_setEncoderPosition(INSTRUMENTS_LEN-1);
+          instrumentEncoder = INSTRUMENTS_LEN-1;
+        }      
+        if(instrumentEncoder!=instrumentEncoder0)
+        {
+            Serial.println("cambie encoder instrument!");
+            Serial.println(selectedInstrument);
+            instrumentEncoder0 = instrumentEncoder;
+            selectedInstrument=instrumentEncoder;
+            logic_forceUpdateScreen();
+        }
     }
     //____________________
     
-    
+    // next pattern selection (shift=true)
+    if(flagSwShiftState==1)
+    {
+        int patternEncoder = frontp_getEncoderPosition();
+        if(patternEncoder>=PATTERNS_LEN){
+          frontp_setEncoderPosition(0);
+          patternEncoder=0;
+        }
+        if(patternEncoder<0){
+          frontp_setEncoderPosition(PATTERNS_LEN-1);
+          patternEncoder = PATTERNS_LEN-1;
+        }      
+        if(patternEncoder!=patternEncoder0)
+        {
+            Serial.println("cambie encoder pattern!");
+            patternEncoder0 = patternEncoder;
+            patternToWrite = patternEncoder;
+            writingState = WRITING_STATE_INIT;
+            logic_forceUpdateScreen();
+        }
+    }
+    //_____________________________________
+
+
+    switch(writingState)
+    {
+        case WRITING_STATE_INIT:
+        {
+            patternToWriteStep=0;
+            break;
+        }
+    }
 }
 static void stateMachineModeConfiguration(void)
 {

@@ -1,5 +1,5 @@
 #define PATTERNS_LEN      32
-#define INSTRUMENTS_LEN   8
+#define INSTRUMENTS_LEN   7
 
 
 void rthm_init(void);
@@ -19,3 +19,6 @@ void rthm_incStep(void);
 int rthm_getCurrentStep(void);
 int rthm_isNewStepFinished(void);
 void rthm_resetNewStepFinishedFlag(void);
+
+unsigned short rthm_getPattern(unsigned char patIndex,unsigned char instrIndex);
+

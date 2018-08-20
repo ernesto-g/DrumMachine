@@ -104,6 +104,12 @@ void rthm_stop(void)
     flagPlay=0;
 }
 
+unsigned short rthm_getPattern(unsigned char patIndex,unsigned char instrIndex)
+{
+  return patterns[patIndex][instrIndex];  
+}
+
+
 void rthm_loop(void)
 {  
     if(tempoCounter==0 && flagPlay==1)

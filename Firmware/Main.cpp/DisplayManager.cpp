@@ -28,7 +28,7 @@ static Adafruit_SSD1306 display(OLED_RESET);
 #define LOGO16_GLCD_HEIGHT 16 
 #define LOGO16_GLCD_WIDTH  16 
 
-static const char INSTRUMENTS_NAMES[7][3]={"BD","SD","CH","OH","HC","CV","TO"};
+static const char INSTRUMENTS_NAMES[INSTRUMENTS_LEN][3]={"BD","SD","CH","OH","HC","CL","TO",};
 static unsigned char flagRedrawScreen;
 static unsigned char currentScreen;
 
@@ -90,32 +90,47 @@ static void showPlayingScreen(void)
 {
     int currentStep = rthm_getCurrentStep();
     int currentTempo = rthm_getCurrentTempo();
-
+    int currentPattern = rthm_getCurrentPattern();
+    
     display.clearDisplay();  
 
     display.setTextSize(2);
     display.setTextColor(WHITE);
 
+    display.setCursor(0,0);
+    if(currentPattern<10)
+      display.print("0");
+    display.print(currentPattern);
+    
     display.drawBitmap(0, 16,  logo16_play_bmp, 16, 16, 1);
 
     display.setCursor(40,0);
     display.print("STEP:");
+    if(currentStep<10)
+      display.print("0");
     display.print(currentStep);
     
     display.setCursor(40,16);
+    if(currentTempo<100)
+      display.print("0");
     display.print(currentTempo);
     
     display.setTextSize(1);
     display.setCursor(80,16);
     display.print("bpm");
     
-    display.setCursor(17,24);
-    display.print("sh");
+    // shift sw
+    display.setTextSize(1);
+    display.setCursor(17,16);
+    if(logic_getSwShiftState())
+      display.print("sh");
+    //_________
 }
 
 static void showWritingScreen(void)
 {
-    int currentPattern = rthm_getCurrentPattern();
+    int wPattern = logic_getWritingPattern();
+    int wPatternStep = logic_getWritingPatternStep();
     
     display.clearDisplay();  
     
@@ -124,17 +139,53 @@ static void showWritingScreen(void)
     display.setCursor(0,0);
     display.print(INSTRUMENTS_NAMES[logic_getSelectedInstrument()]);
     
-    display.drawBitmap(0, 16,  logo16_writing_bmp, 16, 16, 1);
-    // shift sw agregar if
-    display.setCursor(17,24);
-    display.print("sh");  
-    //_________
+    //display.drawBitmap(0, 16,  logo16_writing_bmp, 16, 16, 1);
     
     display.setTextSize(2);
     display.setTextColor(WHITE);
-    display.setCursor(40,0);
-    display.print("PATT:");
-    display.print(currentPattern);
+
+    // step to write
+    display.setCursor(32,0);
+    display.setTextSize(1);
+    display.print("ST:");
+    display.setTextSize(2);
+    if(wPatternStep<10)
+      display.print("0");
+    display.print(wPatternStep);
+
+    // pattern to write
+    display.setCursor(80,0);
+    display.setTextSize(1);
+    display.print("PT:");
+    display.setTextSize(2);
+    if(wPattern<10)
+      display.print("0");
+    display.print(wPattern);
+
+
+    // shift sw
+    display.setTextSize(1);
+    display.setCursor(26,11);
+    if(logic_getSwShiftState())
+      display.print("sh");
+    //_________
+
+    
+    // draw pattern to write
+    display.drawLine(0, 30, 127, 30, WHITE);
+    unsigned short patt = rthm_getPattern(wPattern,logic_getSelectedInstrument());
+    unsigned char i;
+    for(i=0; i<16; i++)
+    {
+        if( (patt&0x0001)==0x0001)
+          display.fillRect( (i*8) + 2, 23, 4, 6, WHITE);
+        else
+          display.drawRect( (i*8) + 2, 23, 4, 6, WHITE);
+
+       patt=patt>>1;
+    }
+    //_____________________    
+
 }
 
 static void showConfigScreen(void)

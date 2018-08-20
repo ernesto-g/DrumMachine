@@ -32,6 +32,7 @@ void setup()   {
   frontp_init();
   inst_init();
   rthm_init();
+  logic_init();
   
   // initialize timer1 (systick)
   noInterrupts();           // disable all interrupts
