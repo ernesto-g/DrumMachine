@@ -6,6 +6,7 @@
 #include "RythmManager.h"
 #include "DisplayManager.h"
 #include "Icons.h"
+#include "Logic.h"
 
 // icons
 extern const unsigned char PROGMEM logo16_play_bmp[];
@@ -34,7 +35,6 @@ static unsigned char currentScreen;
 static void showPlayingScreen(void);
 static void showWritingScreen(void);
 static void showConfigScreen(void);
-
 
 void display_init(void)
 {
@@ -95,11 +95,8 @@ static void showPlayingScreen(void)
 
     display.setTextSize(2);
     display.setTextColor(WHITE);
-    display.setCursor(0,0);
-    display.print(INSTRUMENTS_NAMES[0]);
 
     display.drawBitmap(0, 16,  logo16_play_bmp, 16, 16, 1);
-    //display.drawBitmap(0, 16,  logo16_writing_bmp, 16, 16, 1);
 
     display.setCursor(40,0);
     display.print("STEP:");
@@ -122,6 +119,11 @@ static void showWritingScreen(void)
     
     display.clearDisplay();  
     
+    display.setTextSize(2);
+    display.setTextColor(WHITE);
+    display.setCursor(0,0);
+    display.print(INSTRUMENTS_NAMES[logic_getSelectedInstrument()]);
+    
     display.drawBitmap(0, 16,  logo16_writing_bmp, 16, 16, 1);
     // shift sw agregar if
     display.setCursor(17,24);
@@ -133,7 +135,6 @@ static void showWritingScreen(void)
     display.setCursor(40,0);
     display.print("PATT:");
     display.print(currentPattern);
-        
 }
 
 static void showConfigScreen(void)

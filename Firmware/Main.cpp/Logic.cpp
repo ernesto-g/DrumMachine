@@ -11,18 +11,23 @@
 
 static unsigned char flagForceScreenUpdate;
 static unsigned char mode;
-
+static unsigned char flagSwShiftState;
+static unsigned char currentPattern;
+static unsigned char selectedInstrument;
+static unsigned char instrumentEncoder0;
 
 static void stateMachineModePlaying(void);
 static void stateMachineModeWriting(void);
 static void stateMachineModeConfiguration(void);
-
 
 void logic_init(void)
 {
     flagForceScreenUpdate=0;
     mode=MODE_WRITING;
     rthm_stop();
+    currentPattern = 0;
+    selectedInstrument=0;
+    instrumentEncoder0=-1;
 }
 
 void logic_loop(void)
@@ -69,7 +74,14 @@ void logic_loop(void)
         break;
     }*/
 
+    // shift sw
+    if(frontp_getSwState(SW_SHIFT)==FRONT_PANEL_SW_STATE_JUST_PRESSED)
+      flagSwShiftState = 1;
+    else if(frontp_getSwState(SW_SHIFT)==FRONT_PANEL_SW_STATE_JUST_RELEASED)
+      flagSwShiftState = 0;
+    //_________
 
+    
     switch(mode)
     {
         case MODE_PLAYING:
@@ -96,14 +108,55 @@ void logic_forceUpdateScreen(void)
     flagForceScreenUpdate=1;
 }
 
+int logic_getSelectedInstrument(void)
+{
+    return selectedInstrument;
+}
+
 
 static void stateMachineModePlaying(void)
 {
+    // if play/write sw is pressed, pass to writing mode 
+    if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
+    {
+        display_showScreen(SCREEN_WRITING);  
+        logic_forceUpdateScreen();
+        mode = MODE_WRITING;
+        rthm_stop(); // optional
+        return;
+    }
+    //__________________________________________________
       
 }
 static void stateMachineModeWriting(void)
 {
-  
+    // if play/write sw is pressed, pass to playing mode 
+    if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
+    {
+        display_showScreen(SCREEN_PLAYING);  
+        logic_forceUpdateScreen();
+        mode = MODE_PLAYING;
+        rthm_playPattern(currentPattern);
+        return;
+    }
+    //__________________________________________________
+
+    // instrument selection
+    int instrumentEncoder = frontp_getEncoderPosition();
+    if(instrumentEncoder>=INSTRUMENTS_LEN)
+      frontp_setEncoderPosition(0);
+    if(instrumentEncoder<0)
+      frontp_setEncoderPosition(INSTRUMENTS_LEN-1);
+      
+    if(instrumentEncoder!=instrumentEncoder0)
+    {
+        instrumentEncoder0 = instrumentEncoder;
+        selectedInstrument=1;
+        logic_forceUpdateScreen();
+    }
+    //____________________
+    
+    
 }
 static void stateMachineModeConfiguration(void)
 {

@@ -33,7 +33,6 @@ void setup()   {
   inst_init();
   rthm_init();
   
-
   // initialize timer1 (systick)
   noInterrupts();           // disable all interrupts
   TCCR1A = 0;
@@ -46,40 +45,6 @@ void setup()   {
   interrupts();             // enable all interrupts
   //___________________________
 
-  
-  // Prueba pulso secuencer
-  /*
-  pinMode(7,OUTPUT);
-  pinMode(6,OUTPUT);
-  digitalWrite(7,LOW);
-  digitalWrite(6,LOW);
-  while(1)
-  {
-    digitalWrite(7,HIGH);
-    delay(1);
-    digitalWrite(7,LOW);
-    delay(9);
-
-    digitalWrite(7,HIGH);
-    delay(1);
-    digitalWrite(7,LOW);
-    delay(9);
-
-    digitalWrite(7,HIGH);
-    delay(1);
-    digitalWrite(7,LOW);
-    delay(9);
-
-   
-    digitalWrite(6,HIGH);
-    delay(1);
-    digitalWrite(6,LOW);
-    
-    delay(1000);
-  }
-  */
-
-
   display_showScreen(SCREEN_WRITING);
 
   Serial.print("DRUM MACHINE INIT OK");
@@ -89,10 +54,7 @@ void setup()   {
 
 void loop() 
 {
-  logic_loop();
-
-
-    
+  logic_loop();  
 }
 
 
