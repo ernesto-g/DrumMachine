@@ -11,7 +11,8 @@ static unsigned int currentTempoTicks;
 static int stepIndex;
 static int stepLen;
 static int patternIndex;
-static int flagNewStepFinished;
+static unsigned char flagNewStepFinished;
+static unsigned char flagPlay;
 
 static volatile int tempoCounter;
 void rthm_tick(void)
@@ -47,8 +48,9 @@ void rthm_init(void)
   //patterns[0][INSTR_SD]=B00010000<<8 | B00010000;
   //patterns[0][INSTR_BD]=B01100111<<8 | B01100111;
 
-  patterns[0][INSTR_BD]=B10101010<<8 | B10101010;
-  patterns[0][INSTR_SD]=B01010101<<8 | B01010101;
+    //patterns[0][INSTR_BD]=B10101010<<8 | B10101010;
+  // patterns[0][INSTR_SD]=B01010101<<8 | B01010101;
+  flagPlay=0;
 }
 
 
@@ -77,21 +79,34 @@ int rthm_getCurrentStep(void)
   return stepIndex;
 }
 
+
 void rthm_playCurrentPattern(void)
 {
     tempoCounter=0;
     stepIndex=0;
+    flagPlay=1;
 }
 void rthm_playPattern(int pattern)
 {
     tempoCounter=0;
     stepIndex=0;
     patternIndex = pattern;
+    flagPlay=1;
+}
+int rthm_getCurrentPattern(void)
+{
+  return patternIndex;
+}
+
+
+void rthm_stop(void)
+{
+    flagPlay=0;
 }
 
 void rthm_loop(void)
 {  
-    if(tempoCounter==0)
+    if(tempoCounter==0 && flagPlay==1)
     {
         tempoCounter = currentTempoTicks;
 

@@ -80,7 +80,7 @@ void setup()   {
   */
 
 
-  display_showMainScreen();
+  display_showScreen(SCREEN_WRITING);
 
   Serial.print("DRUM MACHINE INIT OK");
 }

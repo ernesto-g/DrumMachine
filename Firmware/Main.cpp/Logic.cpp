@@ -5,11 +5,24 @@
 #include "Logic.h"
 #include "FrontPanel.h"
 
-static int flagForceScreenUpdate;
+#define MODE_PLAYING        0
+#define MODE_WRITING        1
+#define MODE_CONFIGURATION  2
+
+static unsigned char flagForceScreenUpdate;
+static unsigned char mode;
+
+
+static void stateMachineModePlaying(void);
+static void stateMachineModeWriting(void);
+static void stateMachineModeConfiguration(void);
+
 
 void logic_init(void)
 {
-  flagForceScreenUpdate=0;
+    flagForceScreenUpdate=0;
+    mode=MODE_WRITING;
+    rthm_stop();
 }
 
 void logic_loop(void)
@@ -33,7 +46,7 @@ void logic_loop(void)
     }
     //_________________________________________________
 
-    
+    /*
     // test sw
     int state = frontp_getSwState(SW_ENTER);
     switch(state)
@@ -54,19 +67,48 @@ void logic_loop(void)
         Serial.println("JR");
         frontp_resetSwState(SW_ENTER);
         break;
+    }*/
+
+
+    switch(mode)
+    {
+        case MODE_PLAYING:
+        {
+            stateMachineModePlaying();
+            break;
+        }
+        case MODE_WRITING:
+        {
+            stateMachineModeWriting();
+            break;
+        }
+        case MODE_CONFIGURATION:
+        {
+            stateMachineModeConfiguration();
+            break;
+        }
     }
-    
-    
-
-
-    
+   
 }
-
-
 
 void logic_forceUpdateScreen(void)
 {
     flagForceScreenUpdate=1;
 }
+
+
+static void stateMachineModePlaying(void)
+{
+      
+}
+static void stateMachineModeWriting(void)
+{
+  
+}
+static void stateMachineModeConfiguration(void)
+{
+  
+}
+
 
 

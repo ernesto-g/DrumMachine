@@ -11,6 +11,9 @@ int rthm_getCurrentTempo(void);
 
 void rthm_playCurrentPattern(void);
 void rthm_playPattern(int pattern);
+int rthm_getCurrentPattern(void);
+void rthm_stop(void);
+
 
 void rthm_incStep(void);
 int rthm_getCurrentStep(void);

@@ -5,6 +5,12 @@
 
 #include "RythmManager.h"
 #include "DisplayManager.h"
+#include "Icons.h"
+
+// icons
+extern const unsigned char PROGMEM logo16_play_bmp[];
+extern const unsigned char PROGMEM logo16_writing_bmp[];
+//______
 
 #define OLED_RESET 4
 #define NUMFLAKES 10
@@ -20,45 +26,15 @@ static Adafruit_SSD1306 display(OLED_RESET);
 
 #define LOGO16_GLCD_HEIGHT 16 
 #define LOGO16_GLCD_WIDTH  16 
-static const unsigned char PROGMEM logo16_play_bmp[] =
-{ B10000000, B00000000,
-B11100000, B00000000,
-B11111000, B00000000,
-B11111100, B00000000,
-B11111111, B00000000,
-B11111111, B11000000,
-B11111111, B11110000,
-B11111111, B11111100,
-B11111111, B11111100,
-B11111111, B11110000,
-B11111111, B11000000,
-B11111111, B00000000,
-B11111100, B00000000,
-B11111000, B00000000,
-B11100000, B00000000,
-B10000000, B00000000 };
-
-static const unsigned char PROGMEM logo16_writing_bmp[] =
-{ B00000000, B00000000,
-B01111111, B11111110,
-B01000000, B00100010,
-B01000000, B00100010,
-B01000000, B00111110,
-B01000001, B10000010,
-B01000100, B01000010,
-B01001001, B00100010,
-B01000100, B01000010,
-B01000001, B10000010,
-B01000000, B00000010,
-B01000000, B00000010,
-B01000000, B00000010,
-B01000000, B00000010,
-B01111111, B11111110,
-B00000000, B00000000 };
-
 
 static const char INSTRUMENTS_NAMES[7][3]={"BD","SD","CH","OH","HC","CV","TO"};
-static int flagRedrawScreen;
+static unsigned char flagRedrawScreen;
+static unsigned char currentScreen;
+
+static void showPlayingScreen(void);
+static void showWritingScreen(void);
+static void showConfigScreen(void);
+
 
 void display_init(void)
 {
@@ -69,14 +45,36 @@ void display_init(void)
   flagRedrawScreen=1;
 }
 
+void display_showScreen(unsigned char s)
+{
+    currentScreen = s;
+}
+
 void display_loop(void)
 {
     if(flagRedrawScreen==1)
     {
         flagRedrawScreen=0;
-        // Poner switch con diferentes pantallas
-        // tarda 35ms
-        display_showMainScreen();
+        // it takes 35ms
+        switch(currentScreen)
+        {
+            case SCREEN_PLAYING:
+            {
+                showPlayingScreen();
+                break;
+            }
+            case SCREEN_WRITING:
+            {
+                showWritingScreen();
+                break;
+            }
+            case SCREEN_CONFIG:
+            {
+                showConfigScreen();
+                break;
+            }
+        }
+          
         display.display(); // draw screen
     }
 }
@@ -86,7 +84,9 @@ void display_update(void)
 {
     flagRedrawScreen=1;
 }
-void display_showMainScreen(void)
+
+
+static void showPlayingScreen(void)
 {
     int currentStep = rthm_getCurrentStep();
     int currentTempo = rthm_getCurrentTempo();
@@ -114,7 +114,32 @@ void display_showMainScreen(void)
     
     display.setCursor(17,24);
     display.print("sh");
-    
-
 }
+
+static void showWritingScreen(void)
+{
+    int currentPattern = rthm_getCurrentPattern();
+    
+    display.clearDisplay();  
+    
+    display.drawBitmap(0, 16,  logo16_writing_bmp, 16, 16, 1);
+    // shift sw agregar if
+    display.setCursor(17,24);
+    display.print("sh");  
+    //_________
+    
+    display.setTextSize(2);
+    display.setTextColor(WHITE);
+    display.setCursor(40,0);
+    display.print("PATT:");
+    display.print(currentPattern);
+        
+}
+
+static void showConfigScreen(void)
+{
+    display.clearDisplay();  
+  
+}
+
 
