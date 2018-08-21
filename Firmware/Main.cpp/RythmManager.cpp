@@ -109,6 +109,18 @@ unsigned short rthm_getPattern(unsigned char patIndex,unsigned char instrIndex)
   return patterns[patIndex][instrIndex];  
 }
 
+void rthm_writeSound(unsigned char patIndex,unsigned char patternToWriteStep,unsigned char instrIndex)
+{
+    patterns[patIndex][instrIndex]|= (1<<patternToWriteStep);
+}
+void rthm_writeSilence(unsigned char patIndex,unsigned char patternToWriteStep,unsigned char instrIndex)
+{
+    patterns[patIndex][instrIndex]&= ~((unsigned short)(1<<patternToWriteStep));
+}
+void rthm_cleanPattern(unsigned char patIndex,unsigned char instrIndex)
+{
+    patterns[patIndex][instrIndex]=0x0000;  
+}
 
 void rthm_loop(void)
 {  

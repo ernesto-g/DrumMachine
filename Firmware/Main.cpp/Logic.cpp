@@ -9,7 +9,9 @@
 #define MODE_WRITING        1
 #define MODE_CONFIGURATION  2
 
-#define WRITING_STATE_INIT  0
+#define WRITING_STATE_INIT      0
+#define WRITING_STATE_WRITING   1
+#define WRITING_STATE_FINISHED  2
 
 static unsigned char flagForceScreenUpdate;
 static unsigned char mode;
@@ -211,6 +213,7 @@ static void stateMachineModeWriting(void)
             instrumentEncoder0 = instrumentEncoder;
             selectedInstrument=instrumentEncoder;
             logic_forceUpdateScreen();
+            writingState = WRITING_STATE_INIT;
         }
     }
     //____________________
@@ -238,12 +241,56 @@ static void stateMachineModeWriting(void)
     }
     //_____________________________________
 
-
     switch(writingState)
     {
         case WRITING_STATE_INIT:
         {
             patternToWriteStep=0;
+            writingState = WRITING_STATE_WRITING;
+            break;
+        }
+        case WRITING_STATE_WRITING:
+        {
+            if(frontp_getSwState(SW_ENTER)==FRONT_PANEL_SW_STATE_SHORT)
+            {
+                if(flagSwShiftState==0)
+                {
+                    rthm_writeSound(patternToWrite,patternToWriteStep,selectedInstrument);
+                    patternToWriteStep++;
+                    if(patternToWriteStep>=16)
+                        writingState = WRITING_STATE_FINISHED; 
+                }
+                else
+                {
+                    // save end of pattern (save current step index)
+                    // TODO                    
+                }
+                frontp_resetSwState(SW_ENTER);
+                logic_forceUpdateScreen();
+            }
+            
+            if(frontp_getSwState(SW_ESC)==FRONT_PANEL_SW_STATE_SHORT)
+            {
+                if(flagSwShiftState==0)
+                {
+                    rthm_writeSilence(patternToWrite,patternToWriteStep,selectedInstrument);
+                    patternToWriteStep++;
+                    if(patternToWriteStep>=16)
+                        writingState = WRITING_STATE_FINISHED; 
+                }
+                else
+                {
+                    rthm_cleanPattern(patternToWrite,selectedInstrument);
+                    writingState = WRITING_STATE_INIT;
+                }
+                frontp_resetSwState(SW_ESC);
+                logic_forceUpdateScreen();
+            }            
+            break;
+        }
+        case WRITING_STATE_FINISHED:
+        {
+            
             break;
         }
     }
