@@ -2,6 +2,7 @@
 #define SCREEN_PLAYING  0
 #define SCREEN_WRITING  1
 #define SCREEN_CONFIG   2
+#define SCREEN_CHAIN    3
 
 
 void display_init(void);

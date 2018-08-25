@@ -13,17 +13,28 @@
 #define WRITING_STATE_WRITING   1
 #define WRITING_STATE_FINISHED  2
 
-static unsigned char flagForceScreenUpdate;
+#define PLAYING_STATE_IDLE              0
+#define PLAYING_STATE_SELECT_NEXT_PATT  1
+#define PLAYING_STATE_ADD_NEXT_PATT     2
+ 
+#define TEMPO_MIN 40
+#define TEMPO_MAX 250
+
 static unsigned char mode;
+static unsigned char writingState;
+static unsigned char playingState;
 static unsigned char flagSwShiftState;
 static unsigned char flagSwShiftState0;
+static unsigned char flagForceScreenUpdate;
 static unsigned char currentPattern;
 static unsigned char selectedInstrument;
 static unsigned char instrumentEncoder0;
 static unsigned char patternToWrite;
 static unsigned char patternEncoder0;
 static unsigned char patternToWriteStep;
-static unsigned char writingState;
+static unsigned char tempoEncoder0;
+static signed char patternForChain;
+static signed char patternForChain0;
 
 
 static void stateMachineModePlaying(void);
@@ -41,11 +52,14 @@ void logic_init(void)
     patternToWrite=0;
     patternEncoder0=-1;
     patternToWriteStep=0;
+    tempoEncoder0=-1;
+
 
     flagSwShiftState0=0;
     flagSwShiftState=0;
 
     writingState = WRITING_STATE_INIT;
+    playingState = PLAYING_STATE_IDLE;
 }
 
 void logic_loop(void)
@@ -68,29 +82,6 @@ void logic_loop(void)
       }
     }
     //_________________________________________________
-
-    /*
-    // test sw
-    int state = frontp_getSwState(SW_ENTER);
-    switch(state)
-    {
-        case FRONT_PANEL_SW_STATE_JUST_PRESSED:
-        Serial.println("JP");
-        frontp_resetSwState(SW_ENTER);
-        break;
-        case FRONT_PANEL_SW_STATE_SHORT:
-        Serial.println("pulsada corta");
-        frontp_resetSwState(SW_ENTER);
-        break;
-        case FRONT_PANEL_SW_STATE_LONG:
-        Serial.println("pulsada larga");
-        frontp_resetSwState(SW_ENTER);
-        break;
-        case FRONT_PANEL_SW_STATE_JUST_RELEASED:
-        Serial.println("JR");
-        frontp_resetSwState(SW_ENTER);
-        break;
-    }*/
 
     // shift sw
     if(frontp_getSwState(SW_SHIFT)==FRONT_PANEL_SW_STATE_JUST_PRESSED)
@@ -154,35 +145,133 @@ int logic_getWritingPatternStep(void)
     return patternToWriteStep;  
 }
 
+unsigned char logic_getPatternForChain(void)
+{
+    return patternForChain;
+}
+
 static void stateMachineModePlaying(void)
 {
-    // if play/write sw is pressed, pass to writing mode  
-    if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
+
+    switch(playingState)
     {
-        display_showScreen(SCREEN_WRITING);  
-        logic_forceUpdateScreen();
-        mode = MODE_WRITING;
-        rthm_stop(); // optional
-        return;
-    }
-    //__________________________________________________
-      
+        case PLAYING_STATE_IDLE:
+        {
+            //Change mode to writing
+            if(flagSwShiftState==0)
+            {
+                // if play/write sw is pressed, pass to writing mode  
+                if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
+                {
+                    display_showScreen(SCREEN_WRITING);  
+                    logic_forceUpdateScreen();
+                    mode = MODE_WRITING;
+                    writingState = WRITING_STATE_INIT;
+                    rthm_stop(); // optional
+                    return;
+                }
+            }    
+                  
+            // TEMPO selecion
+            if(flagSwShiftState==0)
+            {
+                unsigned char tempoEncoder = frontp_getEncoderPosition();
+                if(tempoEncoder>TEMPO_MAX){
+                    frontp_setEncoderPosition(TEMPO_MAX);
+                    tempoEncoder=TEMPO_MAX;
+                }
+                if(tempoEncoder<TEMPO_MIN){
+                    frontp_setEncoderPosition(TEMPO_MIN);
+                    tempoEncoder = TEMPO_MIN;
+                }      
+                if(tempoEncoder!=tempoEncoder0)
+                {
+                    tempoEncoder0 = tempoEncoder;
+                    rthm_setTempo(tempoEncoder);
+                    logic_forceUpdateScreen();
+                }
+            }
+            //_____________________________________________
+
+            // Enter Chain screen
+            if(flagSwShiftState==1)
+            {
+                if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
+                {
+                    playingState = PLAYING_STATE_SELECT_NEXT_PATT;
+                    patternForChain=0;
+                    patternForChain0=-1;
+                    frontp_setEncoderPosition(patternForChain);   
+                    display_showScreen(SCREEN_CHAIN); 
+                    frontp_resetSwState(SW_PLAY_WRITE);                
+                }
+            }
+            //_____________
+
+            // Current pattern selection
+            // leer encoder para cambiar de pattern actual (poner en pos 0 de la cadena y borrar la cadena actual o no)
+            //__________________________
+            
+            break;
+        }
+        case PLAYING_STATE_SELECT_NEXT_PATT:
+        {
+            // Next pattern selecion
+            patternForChain = (signed char)frontp_getEncoderPosition();
+            if(patternForChain>=PATTERNS_LEN){
+                frontp_setEncoderPosition(PATTERNS_LEN-1);
+                patternForChain=PATTERNS_LEN-1;
+            }
+            if(patternForChain<0){
+                frontp_setEncoderPosition(0);
+                patternForChain = 0;
+            }      
+            if(patternForChain!=patternForChain0)
+            {
+                patternForChain0 = patternForChain;
+                logic_forceUpdateScreen();
+            }
+            //_____________________________________________
+
+            // Add current selected pattern in chain
+            if(frontp_getSwState(SW_ENTER)==FRONT_PANEL_SW_STATE_SHORT)
+            {
+                rthm_addPatternToChain(patternForChain);
+                logic_forceUpdateScreen();              
+                frontp_resetSwState(SW_ENTER);              
+            }
+
+            // Quit chain screen
+            if(flagSwShiftState==1)
+            {
+                if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
+                {
+                    playingState = PLAYING_STATE_IDLE;
+                    display_showScreen(SCREEN_PLAYING);
+                    frontp_setEncoderPosition(tempoEncoder0);                                       
+                    frontp_resetSwState(SW_PLAY_WRITE);
+                }   
+            }         
+            //_____________
+
+            // Remove last pattern in chain
+            if(flagSwShiftState==1)
+            {
+                if(frontp_getSwState(SW_ESC)==FRONT_PANEL_SW_STATE_SHORT)
+                {
+                    rthm_removeLastPatternInChain();    
+                    logic_forceUpdateScreen();       
+                    frontp_resetSwState(SW_ESC);     
+                }     
+            }
+            //_____________
+            
+            break;
+        }
+    }  
 }
 static void stateMachineModeWriting(void)
 {
-    // if play/write sw is pressed, pass to playing mode 
-    if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
-    {
-        Serial.println("MODO W. Presione playw");
-        display_showScreen(SCREEN_PLAYING);  
-        logic_forceUpdateScreen();
-        mode = MODE_PLAYING;
-        rthm_playPattern(currentPattern);
-        return;
-    }
-    //__________________________________________________
-
-
     // shift sw changed. set initial value for encoder counter
     if(flagSwShiftState0!=flagSwShiftState)
     {
@@ -194,6 +283,23 @@ static void stateMachineModeWriting(void)
     }
     //________________________________________________________
 
+     
+    if(flagSwShiftState==0)
+    {
+        // if play/write sw was pressed, pass to playing mode
+        if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
+        {
+            Serial.println("MODO W. Presione playw");
+            display_showScreen(SCREEN_PLAYING);  
+            logic_forceUpdateScreen();
+            mode = MODE_PLAYING;
+            playingState = PLAYING_STATE_IDLE;
+            rthm_playPattern(currentPattern);
+            return;
+        }
+    }
+    //__________________________________________________
+    
     // instrument selection (shift=false)
     if(flagSwShiftState==0)
     {
@@ -262,8 +368,9 @@ static void stateMachineModeWriting(void)
                 }
                 else
                 {
-                    // save end of pattern (save current step index)
-                    // TODO                    
+                    // go back 1 step
+                    if(patternToWriteStep>0)
+                      patternToWriteStep--;                
                 }
                 frontp_resetSwState(SW_ENTER);
                 logic_forceUpdateScreen();
@@ -275,17 +382,28 @@ static void stateMachineModeWriting(void)
                 {
                     rthm_writeSilence(patternToWrite,patternToWriteStep,selectedInstrument);
                     patternToWriteStep++;
-                    if(patternToWriteStep>=16)
+                    if(patternToWriteStep>=rthm_getEndOfPattern(patternToWrite))
                         writingState = WRITING_STATE_FINISHED; 
                 }
                 else
                 {
-                    rthm_cleanPattern(patternToWrite,selectedInstrument);
+                    rthm_setEndOfPattern(patternToWrite,16);
+                    rthm_cleanPattern(patternToWrite);
                     writingState = WRITING_STATE_INIT;
                 }
                 frontp_resetSwState(SW_ESC);
                 logic_forceUpdateScreen();
-            }            
+            } 
+
+           if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
+           {
+                if(flagSwShiftState==1) // END OF PATTERN WAS PRESSED (shift+play/write button)
+                {
+                    rthm_setEndOfPattern(patternToWrite,patternToWriteStep);                  
+                    frontp_resetSwState(SW_PLAY_WRITE);
+                    writingState = WRITING_STATE_FINISHED;
+                }
+           }
             break;
         }
         case WRITING_STATE_FINISHED:

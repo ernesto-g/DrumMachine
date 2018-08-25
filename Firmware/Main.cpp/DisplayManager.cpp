@@ -35,6 +35,8 @@ static unsigned char currentScreen;
 static void showPlayingScreen(void);
 static void showWritingScreen(void);
 static void showConfigScreen(void);
+static void showChainScreen(void);
+
 
 void display_init(void)
 {
@@ -73,6 +75,10 @@ void display_loop(void)
                 showConfigScreen();
                 break;
             }
+            case SCREEN_CHAIN:
+            {
+                showChainScreen();
+            }
         }
           
         display.display(); // draw screen
@@ -85,6 +91,43 @@ void display_update(void)
     flagRedrawScreen=1;
 }
 
+static void showChainScreen(void)
+{    
+    unsigned char i;
+    signed char* chain = rthm_getPatternsChain();
+
+    display.clearDisplay();  
+
+    display.setTextSize(2);
+    display.setTextColor(WHITE);
+    display.setCursor(0,0);
+    display.print("NEXT:");
+    display.print(logic_getPatternForChain());
+    
+    display.setTextSize(1);
+    display.setCursor(0,16);
+    display.print("PATTERNS CHAIN:");
+    display.setCursor(0,24);
+
+    for(i=0; i<PATTERNS_CHAIN_LEN; i++)
+    {
+        if(chain[i]!=-1)
+        {
+          display.print(chain[i]);
+          display.print(" ");  
+        }
+        else
+          break;
+    }
+    
+    
+    // shift sw
+    display.setTextSize(1);
+    display.setCursor(110,0);
+    if(logic_getSwShiftState())
+      display.print("sh");
+    //_________
+}
 
 static void showPlayingScreen(void)
 {

@@ -1,5 +1,6 @@
-#define PATTERNS_LEN      32
-#define INSTRUMENTS_LEN   7
+#define PATTERNS_LEN        32
+#define INSTRUMENTS_LEN     7
+#define PATTERNS_CHAIN_LEN  7
 
 
 void rthm_init(void);
@@ -24,6 +25,13 @@ unsigned short rthm_getPattern(unsigned char patIndex,unsigned char instrIndex);
 
 void rthm_writeSound(unsigned char patIndex,unsigned char patternToWriteStep,unsigned char instrIndex);
 void rthm_writeSilence(unsigned char patIndex,unsigned char patternToWriteStep,unsigned char instrIndex);
-void rthm_cleanPattern(unsigned char patIndex,unsigned char instrIndex);
+void rthm_cleanPattern(unsigned char patIndex);
+void rthm_setEndOfPattern(unsigned char patIndex,unsigned char patIndexMax);
+unsigned char rthm_getEndOfPattern(unsigned char patIndex);
+
+void rthm_removeLastPatternInChain(void);
+void rthm_addPatternToChain(unsigned char newPattern);
+signed char* rthm_getPatternsChain(void);
+
 
 

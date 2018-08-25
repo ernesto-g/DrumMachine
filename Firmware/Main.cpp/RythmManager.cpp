@@ -6,13 +6,19 @@
 #define SEC_TO_TICK(S)  (S*10000)
 
 static unsigned short patterns[PATTERNS_LEN][INSTRUMENTS_LEN];
+static unsigned char patternsEndStep[PATTERNS_LEN];
 static int currentTempo;
 static unsigned int currentTempoTicks;
-static int stepIndex;
-static int stepLen;
-static int patternIndex;
+static unsigned char stepIndex;
+static unsigned char patternIndex;
 static unsigned char flagNewStepFinished;
 static unsigned char flagPlay;
+static signed char patternsChain[PATTERNS_CHAIN_LEN];
+static signed char patternChainIndex;
+
+static void loadNextPatternInChain(void);
+static unsigned char getChainLen(void);
+
 
 static volatile int tempoCounter;
 void rthm_tick(void)
@@ -30,13 +36,24 @@ void rthm_init(void)
   {
       for(j=0; j<INSTRUMENTS_LEN; j++)
         patterns[i][j]=0x0000;
+
+      patternsEndStep[i]=16;
   }
 
-  rthm_setTempo(75);
-  stepLen=16;
-  patternIndex=0;
+  for(i=0; i<PATTERNS_CHAIN_LEN; i++)
+  {
+      patternsChain[i]=-1;
+  }
+  patternsChain[0]=0; //starts with pattern 0
+  
+  rthm_setTempo(75); 
   flagNewStepFinished=0;
 
+ 
+  patternChainIndex=-1;
+  loadNextPatternInChain();
+
+  
   // prueba pattern
   //patterns[0][INSTR_BD]=0xFFFF;
   //patterns[0][INSTR_SD]=0xFFFF;
@@ -69,9 +86,11 @@ int rthm_getCurrentTempo(void)
 void rthm_incStep(void)
 {
       stepIndex++;
-      if(stepIndex>=stepLen)
+      if(stepIndex>=patternsEndStep[patternIndex])
       {
           stepIndex=0;
+          // end of pattern, load next pattern
+          loadNextPatternInChain();
       }
 }
 int rthm_getCurrentStep(void)
@@ -117,9 +136,64 @@ void rthm_writeSilence(unsigned char patIndex,unsigned char patternToWriteStep,u
 {
     patterns[patIndex][instrIndex]&= ~((unsigned short)(1<<patternToWriteStep));
 }
-void rthm_cleanPattern(unsigned char patIndex,unsigned char instrIndex)
+void rthm_cleanPattern(unsigned char patIndex)
 {
-    patterns[patIndex][instrIndex]=0x0000;  
+    unsigned char i;
+    for(i=0; i<INSTRUMENTS_LEN; i++)
+      patterns[patIndex][i]=0x0000;  
+}
+
+void rthm_setEndOfPattern(unsigned char patIndex,unsigned char patIndexMax)
+{
+    patternsEndStep[patIndex] = patIndexMax;
+}
+
+unsigned char rthm_getEndOfPattern(unsigned char patIndex)
+{
+    return patternsEndStep[patIndex];
+}
+
+void rthm_removeLastPatternInChain(void)
+{
+    int i;
+    for(i=PATTERNS_CHAIN_LEN; i>=0; i--)
+    {
+        if(patternsChain[i]!=-1)
+        {
+            patternsChain[i] = -1;
+            return;
+        }
+    }
+}
+void rthm_addPatternToChain(unsigned char newPattern)
+{
+    int i;
+    for(i=0; i<PATTERNS_CHAIN_LEN; i++)
+    {
+        if(patternsChain[i]==-1)
+        {
+            patternsChain[i] = newPattern;
+            return;
+        }
+    }
+}
+static unsigned char getChainLen(void)
+{
+    int i;
+    for(i=0; i<PATTERNS_CHAIN_LEN; i++)
+    {
+        if(patternsChain[i]==-1)
+        {
+            return i;
+        }
+    }
+    return i;
+}
+
+
+signed char* rthm_getPatternsChain(void)
+{
+    return patternsChain;
 }
 
 void rthm_loop(void)
@@ -129,7 +203,7 @@ void rthm_loop(void)
         tempoCounter = currentTempoTicks;
 
         // Check what instruments should be played
-        int instrumentIndex;
+        unsigned char instrumentIndex;
         for(instrumentIndex=0; instrumentIndex<INSTRUMENTS_LEN; instrumentIndex++)
         {
             if( (patterns[patternIndex][instrumentIndex]>>stepIndex)&0x0001==0x0001)
@@ -150,5 +224,14 @@ int rthm_isNewStepFinished(void)
 void rthm_resetNewStepFinishedFlag(void)
 {
     flagNewStepFinished=0;
+}
+
+static void loadNextPatternInChain(void)
+{
+    patternChainIndex++;
+    if(patternChainIndex>=getChainLen())
+      patternChainIndex=0;
+
+    patternIndex=patternsChain[patternChainIndex];             
 }
 
