@@ -60,6 +60,15 @@ void logic_init(void)
 
     writingState = WRITING_STATE_INIT;
     playingState = PLAYING_STATE_IDLE;
+
+    // prueba. arranco reproduciendo
+    Serial.println("MODO W. Presione playw");
+    display_showScreen(SCREEN_PLAYING);  
+    logic_forceUpdateScreen();
+    mode = MODE_PLAYING;
+    playingState = PLAYING_STATE_IDLE;
+    rthm_playPattern(currentPattern);
+   //_______________________________         
 }
 
 void logic_loop(void)

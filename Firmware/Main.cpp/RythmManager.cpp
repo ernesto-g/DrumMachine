@@ -55,11 +55,12 @@ void rthm_init(void)
 
   
   // prueba pattern
-  //patterns[0][INSTR_BD]=0xFFFF;
-  //patterns[0][INSTR_SD]=0xFFFF;
-  //patterns[0][INSTR_CH]=0xFFFF;
-  //patterns[0][INSTR_CB]=0xFF55;
-  //patterns[0][INSTR_CB]=0xFFFF;
+  patterns[0][INSTR_BD]=0xFFFF;
+  patterns[0][INSTR_SD]=0xFFFF;
+  patterns[0][INSTR_CH]=0xFFFF;
+  patterns[0][INSTR_OH]=0xFFFF;
+  patterns[0][INSTR_CP]=0xFFFF;
+  patterns[0][INSTR_CL]=0xFFFF;
   
   //patterns[0][INSTR_HC]=B10001000<<8 | B10001000; //0xFFFF;
   //patterns[0][INSTR_SD]=B00010000<<8 | B00010000;

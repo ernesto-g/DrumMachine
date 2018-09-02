@@ -11,6 +11,7 @@ void ios_init(void)
   pinMode(PIN_TRIGGER_HC_2, OUTPUT);
   pinMode(PIN_TRIGGER_CB_CV, OUTPUT);
   pinMode(PIN_TRIGGER_T0, OUTPUT);
+  pinMode(PIN_TRIGGER_ACC, OUTPUT);
 
   // configure SW pins as input
   pinMode(PIN_SW_ENTER,INPUT);
@@ -44,6 +45,7 @@ void ios_setLo(int triggerNumber)
       case IOS_TRIGGER_HC_2: digitalWrite(PIN_TRIGGER_HC_2,LOW);break;
       case IOS_TRIGGER_CB_CV: digitalWrite(PIN_TRIGGER_CB_CV,LOW);break;
       case IOS_TRIGGER_T0: digitalWrite(PIN_TRIGGER_T0,LOW);break;
+      case IOS_TRIGGER_ACC: digitalWrite(PIN_TRIGGER_ACC,LOW);break;
     }
 }
 void ios_setHi(int triggerNumber)
@@ -58,6 +60,7 @@ void ios_setHi(int triggerNumber)
       case IOS_TRIGGER_HC_2: digitalWrite(PIN_TRIGGER_HC_2,HIGH);break;
       case IOS_TRIGGER_CB_CV: digitalWrite(PIN_TRIGGER_CB_CV,HIGH);break;
       case IOS_TRIGGER_T0: digitalWrite(PIN_TRIGGER_T0,HIGH);break;
+      case IOS_TRIGGER_ACC: digitalWrite(PIN_TRIGGER_ACC,HIGH);break;
     } 
 }
 

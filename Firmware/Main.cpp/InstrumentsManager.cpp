@@ -93,7 +93,7 @@ static void stateMachine(int instrumentIndex)
         }
         case STATE_START:
         {
-      			if(instrumentIndex==INSTR_HC)
+      			if(instrumentIndex==INSTR_CP)
       			{
       				handClapStart();
       				states[instrumentIndex] = STATE_WAIT_HANDCLAP_SM;
@@ -149,73 +149,73 @@ static int stateMachineHandClap(void)
 		case STATE_HC_START:
 		{
 			ios_setHi(IOS_TRIGGER_HC_1);
-			timeouts[INSTR_HC] = TRIGGER_PULSE_1MS;
+			timeouts[INSTR_CP] = TRIGGER_PULSE_1MS;
 			stateHandClap = STATE_HC_WAIT_PULSE1_HI;
 			break;
 		}
 		case STATE_HC_WAIT_PULSE1_HI:
 		{
-			if(timeouts[INSTR_HC]<=0)
+			if(timeouts[INSTR_CP]<=0)
 			{
 				ios_setLo(IOS_TRIGGER_HC_1);
-				timeouts[INSTR_HC] = TRIGGER_PULSE_9MS;
+				timeouts[INSTR_CP] = TRIGGER_PULSE_9MS;
 				stateHandClap = STATE_HC_WAIT_PULSE1_LO;
 			}
 			break;
 		}
 		case STATE_HC_WAIT_PULSE1_LO:
 		{
-			if(timeouts[INSTR_HC]<=0)
+			if(timeouts[INSTR_CP]<=0)
 			{
 				ios_setHi(IOS_TRIGGER_HC_1);
-				timeouts[INSTR_HC] = TRIGGER_PULSE_1MS;
+				timeouts[INSTR_CP] = TRIGGER_PULSE_1MS;
 				stateHandClap = STATE_HC_WAIT_PULSE2_HI;
 			}
 			break;
 		}
 		case STATE_HC_WAIT_PULSE2_HI:
 		{
-			if(timeouts[INSTR_HC]<=0)
+			if(timeouts[INSTR_CP]<=0)
 			{
 				ios_setLo(IOS_TRIGGER_HC_1);
-				timeouts[INSTR_HC] = TRIGGER_PULSE_9MS;
+				timeouts[INSTR_CP] = TRIGGER_PULSE_9MS;
 				stateHandClap = STATE_HC_WAIT_PULSE2_LO;
 			}
 			break;
 		}
 		case STATE_HC_WAIT_PULSE2_LO:
 		{
-			if(timeouts[INSTR_HC]<=0)
+			if(timeouts[INSTR_CP]<=0)
 			{
 				ios_setHi(IOS_TRIGGER_HC_1);
-				timeouts[INSTR_HC] = TRIGGER_PULSE_1MS;
+				timeouts[INSTR_CP] = TRIGGER_PULSE_1MS;
 				stateHandClap = STATE_HC_WAIT_PULSE3_HI;
 			}
 			break;
 		}	
 		case STATE_HC_WAIT_PULSE3_HI:
 		{
-			if(timeouts[INSTR_HC]<=0)
+			if(timeouts[INSTR_CP]<=0)
 			{
 				ios_setLo(IOS_TRIGGER_HC_1);
-				timeouts[INSTR_HC] = TRIGGER_PULSE_9MS;
+				timeouts[INSTR_CP] = TRIGGER_PULSE_9MS;
 				stateHandClap = STATE_HC_WAIT_PULSE3_LO;
 			}
 			break;
 		}	
 		case STATE_HC_WAIT_PULSE3_LO:
 		{
-			if(timeouts[INSTR_HC]<=0)
+			if(timeouts[INSTR_CP]<=0)
 			{
 				ios_setHi(IOS_TRIGGER_HC_2);
-				timeouts[INSTR_HC] = TRIGGER_PULSE_1MS;
+				timeouts[INSTR_CP] = TRIGGER_PULSE_1MS;
 				stateHandClap = STATE_HC_WAIT_PULSE4_HI;
 			}
 			break;
 		}
 		case STATE_HC_WAIT_PULSE4_HI:
 		{
-			if(timeouts[INSTR_HC]<=0)
+			if(timeouts[INSTR_CP]<=0)
 			{
 				ios_setLo(IOS_TRIGGER_HC_2);
 				stateHandClap = STATE_HC_IDLE;
@@ -235,9 +235,9 @@ static int getTriggerPinByInstrument(int instrumentIndex)
     case INSTR_SD:  return IOS_TRIGGER_SD;
     case INSTR_CH:  return IOS_TRIGGER_CH;
     case INSTR_OH:  return IOS_TRIGGER_OH;
-    //case INSTR_HC:  return ;
-    case INSTR_CB:  return IOS_TRIGGER_CB_CV;
-    case INSTR_CV:  return IOS_TRIGGER_CB_CV;
+    //case INSTR_CP:  return ;
+    case INSTR_CL:  return IOS_TRIGGER_CB_CV;
+    case INSTR_ACC:  return IOS_TRIGGER_ACC;
     case INSTR_TO:  return IOS_TRIGGER_T0;   
   }  
   return -1;  
@@ -251,8 +251,8 @@ static int getTimeoutByInstrument(int instrumentIndex)
 		case INSTR_CH:	return TRIGGER_PULSE_1MS;
 		case INSTR_OH:	return TRIGGER_PULSE_1MS;
 		//case INSTR_HC:	return TRIGGER_PULSE_1MS;
-		case INSTR_CB:	return TRIGGER_PULSE_1MS;
-		case INSTR_CV:	return TRIGGER_PULSE_1MS;
+		case INSTR_CL:	return TRIGGER_PULSE_1MS;
+		case INSTR_ACC:	return TRIGGER_PULSE_1MS;
 		case INSTR_TO:	return TRIGGER_PULSE_1MS;		
 	}
 	return -1;
