@@ -28,7 +28,7 @@ static Adafruit_SSD1306 display(OLED_RESET);
 #define LOGO16_GLCD_HEIGHT 16 
 #define LOGO16_GLCD_WIDTH  16 
 
-static const char INSTRUMENTS_NAMES[INSTRUMENTS_LEN][3]={"BD","SD","CH","OH","HC","CL","TO",};
+static const char INSTRUMENTS_NAMES[INSTRUMENTS_LEN][3]={"BD","SD","CH","OH","CP","CL","TO",};
 static unsigned char flagRedrawScreen;
 static unsigned char currentScreen;
 

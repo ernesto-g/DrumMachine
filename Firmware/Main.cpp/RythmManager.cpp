@@ -55,13 +55,14 @@ void rthm_init(void)
 
   
   // prueba pattern
+  /*
   patterns[0][INSTR_BD]=0xFFFF;
   patterns[0][INSTR_SD]=0xFFFF;
   patterns[0][INSTR_CH]=0xFFFF;
   patterns[0][INSTR_OH]=0xFFFF;
   patterns[0][INSTR_CP]=0xFFFF;
   patterns[0][INSTR_CL]=0xFFFF;
-  
+  */
   //patterns[0][INSTR_HC]=B10001000<<8 | B10001000; //0xFFFF;
   //patterns[0][INSTR_SD]=B00010000<<8 | B00010000;
   //patterns[0][INSTR_BD]=B01100111<<8 | B01100111;
@@ -112,6 +113,13 @@ void rthm_playPattern(int pattern)
     stepIndex=0;
     patternIndex = pattern;
     flagPlay=1;
+
+    if(getChainLen()==1)
+    {
+        patternsChain[0]=patternIndex;
+        patternChainIndex=0;
+    }
+      
 }
 int rthm_getCurrentPattern(void)
 {
@@ -156,8 +164,11 @@ unsigned char rthm_getEndOfPattern(unsigned char patIndex)
 
 void rthm_removeLastPatternInChain(void)
 {
+    if(getChainLen()<=1)
+      return;
+  
     int i;
-    for(i=PATTERNS_CHAIN_LEN; i>=0; i--)
+    for(i=PATTERNS_CHAIN_LEN-1; i>=0; i--)
     {
         if(patternsChain[i]!=-1)
         {

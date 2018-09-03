@@ -5,7 +5,7 @@
 
 #define LEN_SW          4
 
-#define TIMEOUT_BOUNCE      10 // 10ms
+#define TIMEOUT_BOUNCE      20 // 10ms
 #define TIMEOUT_SHORT_PRESS 1000  // 1sec
 #define TIMEOUT_LONG_PRESS  2000  // 2sec
 
@@ -18,7 +18,7 @@
 #define STATE_WAIT_BOUNCE_RELEASE   6
 
 
-static RotaryEncoder encoder(A3, A2);
+static RotaryEncoder encoder(A2, A3);
 static unsigned char state[LEN_SW];
 static unsigned char switchesState[LEN_SW];
 static volatile unsigned int timeouts[LEN_SW];

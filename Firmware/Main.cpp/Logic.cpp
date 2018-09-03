@@ -61,14 +61,24 @@ void logic_init(void)
     writingState = WRITING_STATE_INIT;
     playingState = PLAYING_STATE_IDLE;
 
+    // set initial tempo
+    tempoEncoder0=150;
+    frontp_setEncoderPosition(tempoEncoder0);    
+    rthm_setTempo(tempoEncoder0);
+    //__________________                   
+
     // prueba. arranco reproduciendo
+    /*
     Serial.println("MODO W. Presione playw");
     display_showScreen(SCREEN_PLAYING);  
     logic_forceUpdateScreen();
     mode = MODE_PLAYING;
     playingState = PLAYING_STATE_IDLE;
     rthm_playPattern(currentPattern);
-   //_______________________________         
+    */
+   //_______________________________   
+
+   logic_forceUpdateScreen();
 }
 
 void logic_loop(void)
@@ -161,7 +171,6 @@ unsigned char logic_getPatternForChain(void)
 
 static void stateMachineModePlaying(void)
 {
-
     switch(playingState)
     {
         case PLAYING_STATE_IDLE:
@@ -298,12 +307,15 @@ static void stateMachineModeWriting(void)
         // if play/write sw was pressed, pass to playing mode
         if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
         {
-            Serial.println("MODO W. Presione playw");
+            Serial.println("MODO W. Presione playw. currentPattern:");
+            currentPattern = patternToWrite; // start playing from last pattern written
+            Serial.println(currentPattern);
             display_showScreen(SCREEN_PLAYING);  
             logic_forceUpdateScreen();
             mode = MODE_PLAYING;
             playingState = PLAYING_STATE_IDLE;
             rthm_playPattern(currentPattern);
+            frontp_setEncoderPosition(tempoEncoder0); 
             return;
         }
     }
@@ -371,6 +383,7 @@ static void stateMachineModeWriting(void)
                 if(flagSwShiftState==0)
                 {
                     rthm_writeSound(patternToWrite,patternToWriteStep,selectedInstrument);
+                    inst_playInstrument(selectedInstrument);
                     patternToWriteStep++;
                     if(patternToWriteStep>=16)
                         writingState = WRITING_STATE_FINISHED; 
