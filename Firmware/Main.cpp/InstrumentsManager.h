@@ -14,3 +14,6 @@ void inst_loop(void);
 void inst_playInstrument(int instrumentIndex);
 int inst_areAllInstrumentsIdle(void);
 
+void inst_accOn(void);
+void inst_accOff(void);
+

@@ -5,7 +5,8 @@
 
 #define SEC_TO_TICK(S)  (S*10000)
 
-static unsigned short patterns[PATTERNS_LEN][INSTRUMENTS_LEN];
+
+static unsigned short patterns[PATTERNS_LEN][INSTRUMENTS_LEN_WITH_ACC];
 static unsigned char patternsEndStep[PATTERNS_LEN];
 static int currentTempo;
 static unsigned int currentTempoTicks;
@@ -34,7 +35,7 @@ void rthm_init(void)
   // Clean patterns
   for(i=0; i<PATTERNS_LEN; i++)
   {
-      for(j=0; j<INSTRUMENTS_LEN; j++)
+      for(j=0; j<INSTRUMENTS_LEN_WITH_ACC; j++)
         patterns[i][j]=0x0000;
 
       patternsEndStep[i]=16;
@@ -148,7 +149,7 @@ void rthm_writeSilence(unsigned char patIndex,unsigned char patternToWriteStep,u
 void rthm_cleanPattern(unsigned char patIndex)
 {
     unsigned char i;
-    for(i=0; i<INSTRUMENTS_LEN; i++)
+    for(i=0; i<INSTRUMENTS_LEN_WITH_ACC; i++)
       patterns[patIndex][i]=0x0000;  
 }
 
@@ -214,6 +215,13 @@ void rthm_loop(void)
     {
         tempoCounter = currentTempoTicks;
 
+        // check accent state
+        if( (patterns[patternIndex][INSTR_ACC]>>stepIndex)&0x0001==0x0001)
+            inst_accOn();
+        else
+            inst_accOff();
+        //___________________
+
         // Check what instruments should be played
         unsigned char instrumentIndex;
         for(instrumentIndex=0; instrumentIndex<INSTRUMENTS_LEN; instrumentIndex++)
@@ -222,7 +230,7 @@ void rthm_loop(void)
             {
                 inst_playInstrument(instrumentIndex); // Play instrument
             }
-        }
+        }        
         rthm_incStep(); // Inc step        
 
         flagNewStepFinished=1;

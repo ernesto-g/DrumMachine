@@ -325,13 +325,13 @@ static void stateMachineModeWriting(void)
     if(flagSwShiftState==0)
     {
         int instrumentEncoder = frontp_getEncoderPosition();
-        if(instrumentEncoder>=INSTRUMENTS_LEN){
+        if(instrumentEncoder>=INSTRUMENTS_LEN_WITH_ACC){
           frontp_setEncoderPosition(0);
           instrumentEncoder=0;
         }
         if(instrumentEncoder<0){
-          frontp_setEncoderPosition(INSTRUMENTS_LEN-1);
-          instrumentEncoder = INSTRUMENTS_LEN-1;
+          frontp_setEncoderPosition(INSTRUMENTS_LEN_WITH_ACC-1);
+          instrumentEncoder = INSTRUMENTS_LEN_WITH_ACC-1;
         }      
         if(instrumentEncoder!=instrumentEncoder0)
         {

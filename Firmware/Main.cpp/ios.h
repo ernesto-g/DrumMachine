@@ -18,7 +18,7 @@
 #define PIN_TRIGGER_CB_CV 7 
 #define PIN_TRIGGER_T0    6
 
-#define PIN_TRIGGER_ACC    6
+#define PIN_TRIGGER_ACC    21
 
 #define PIN_SW_ENTER      2
 #define PIN_SW_ESC        3

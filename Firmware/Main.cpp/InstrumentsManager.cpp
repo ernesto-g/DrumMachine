@@ -63,12 +63,13 @@ void inst_loop(void)
 	for(i=0; i<INSTRUMENTS_LEN; i++)
 	{
 		stateMachine(i);
-	}
+	} 
 }
 
 void inst_playInstrument(int instrumentIndex)
 {
-    states[instrumentIndex] = STATE_START;
+    if(instrumentIndex<INSTRUMENTS_LEN)
+      states[instrumentIndex] = STATE_START;
 }
 
 int inst_areAllInstrumentsIdle(void)
@@ -227,6 +228,16 @@ static int stateMachineHandClap(void)
 	return ret;
 }
 
+
+void inst_accOn(void)
+{
+    ios_setHi(getTriggerPinByInstrument(INSTR_ACC));
+}
+void inst_accOff(void)
+{
+    ios_setLo(getTriggerPinByInstrument(INSTR_ACC));
+}
+
 static int getTriggerPinByInstrument(int instrumentIndex)
 {
   switch(instrumentIndex)
@@ -238,7 +249,7 @@ static int getTriggerPinByInstrument(int instrumentIndex)
     //case INSTR_CP:  return ;
     case INSTR_CL:  return IOS_TRIGGER_CB_CV;
     case INSTR_ACC:  return IOS_TRIGGER_ACC;
-    case INSTR_TO:  return IOS_TRIGGER_T0;   
+    case INSTR_TO:  return IOS_TRIGGER_T0;
   }  
   return -1;  
 }
