@@ -131,7 +131,7 @@ static void showChainScreen(void)
 
 static void showPlayingScreen(void)
 {
-    int currentStep = rthm_getCurrentStep();
+    int currentStep = rthm_getCurrentStep()+1;
     int currentTempo = rthm_getCurrentTempo();
     int currentPattern = rthm_getCurrentPattern();
     
@@ -149,10 +149,15 @@ static void showPlayingScreen(void)
 
     display.setCursor(40,0);
     display.print("STEP:");
-    if(currentStep<10)
-      display.print("0");
-    display.print(currentStep);
-    
+    if(currentStep<=16)
+    {
+      if(currentStep<10)
+        display.print("0");
+      display.print(currentStep);
+    }
+    else
+      display.print("-");
+      
     display.setCursor(40,16);
     if(currentTempo<100)
       display.print("0");
@@ -173,7 +178,7 @@ static void showPlayingScreen(void)
 static void showWritingScreen(void)
 {
     int wPattern = logic_getWritingPattern();
-    int wPatternStep = logic_getWritingPatternStep();
+    int wPatternStep = logic_getWritingPatternStep()+1;
     
     display.clearDisplay();  
     
@@ -192,10 +197,15 @@ static void showWritingScreen(void)
     display.setTextSize(1);
     display.print("ST:");
     display.setTextSize(2);
-    if(wPatternStep<10)
-      display.print("0");
-    display.print(wPatternStep);
-
+    if(wPatternStep<=16)
+    {
+      if(wPatternStep<10)
+        display.print("0");
+      display.print(wPatternStep);
+    }
+    else
+      display.print("-");
+      
     // pattern to write
     display.setCursor(80,0);
     display.setTextSize(1);

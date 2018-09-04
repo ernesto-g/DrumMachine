@@ -48,7 +48,7 @@ void setup()   {
 
   display_showScreen(SCREEN_WRITING);
 
-  Serial.print("DRUM MACHINE INIT OK");
+  //Serial.print("DRUM MACHINE INIT OK");
 }
 
 

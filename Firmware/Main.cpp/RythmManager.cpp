@@ -2,6 +2,7 @@
 #include "RythmManager.h"
 #include "InstrumentsManager.h"
 #include "DisplayManager.h"
+#include "MemoryManager.h"
 
 #define SEC_TO_TICK(S)  (S*10000)
 
@@ -36,9 +37,11 @@ void rthm_init(void)
   for(i=0; i<PATTERNS_LEN; i++)
   {
       for(j=0; j<INSTRUMENTS_LEN_WITH_ACC; j++)
-        patterns[i][j]=0x0000;
-
-      patternsEndStep[i]=16;
+      {
+          patterns[i][j] = mem_loadPattern(i,j); // load pattern from eeprom          
+      }
+      patternsEndStep[i]=mem_loadPatternEnd(i); // load patern end from eeprom
+      //Serial.print("pattern:");Serial.print(i);Serial.print("END:");Serial.print(patternsEndStep[i]);Serial.print("\n"); 
   }
 
   for(i=0; i<PATTERNS_CHAIN_LEN; i++)
@@ -49,27 +52,10 @@ void rthm_init(void)
   
   rthm_setTempo(75); 
   flagNewStepFinished=0;
-
  
   patternChainIndex=-1;
   loadNextPatternInChain();
 
-  
-  // prueba pattern
-  /*
-  patterns[0][INSTR_BD]=0xFFFF;
-  patterns[0][INSTR_SD]=0xFFFF;
-  patterns[0][INSTR_CH]=0xFFFF;
-  patterns[0][INSTR_OH]=0xFFFF;
-  patterns[0][INSTR_CP]=0xFFFF;
-  patterns[0][INSTR_CL]=0xFFFF;
-  */
-  //patterns[0][INSTR_HC]=B10001000<<8 | B10001000; //0xFFFF;
-  //patterns[0][INSTR_SD]=B00010000<<8 | B00010000;
-  //patterns[0][INSTR_BD]=B01100111<<8 | B01100111;
-
-    //patterns[0][INSTR_BD]=B10101010<<8 | B10101010;
-  // patterns[0][INSTR_SD]=B01010101<<8 | B01010101;
   flagPlay=0;
 }
 
@@ -150,7 +136,10 @@ void rthm_cleanPattern(unsigned char patIndex)
 {
     unsigned char i;
     for(i=0; i<INSTRUMENTS_LEN_WITH_ACC; i++)
+    {
       patterns[patIndex][i]=0x0000;  
+      mem_savePattern(patIndex,i,0x0000); // save into eeprom
+    }
 }
 
 void rthm_setEndOfPattern(unsigned char patIndex,unsigned char patIndexMax)

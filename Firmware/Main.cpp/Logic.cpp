@@ -4,6 +4,7 @@
 #include "DisplayManager.h"
 #include "Logic.h"
 #include "FrontPanel.h"
+#include "MemoryManager.h"
 
 #define MODE_PLAYING        0
 #define MODE_WRITING        1
@@ -43,6 +44,8 @@ static void stateMachineModeConfiguration(void);
 
 void logic_init(void)
 {
+    mem_init();
+    
     flagForceScreenUpdate=0;
     mode=MODE_WRITING;
     rthm_stop();
@@ -66,17 +69,6 @@ void logic_init(void)
     frontp_setEncoderPosition(tempoEncoder0);    
     rthm_setTempo(tempoEncoder0);
     //__________________                   
-
-    // prueba. arranco reproduciendo
-    /*
-    Serial.println("MODO W. Presione playw");
-    display_showScreen(SCREEN_PLAYING);  
-    logic_forceUpdateScreen();
-    mode = MODE_PLAYING;
-    playingState = PLAYING_STATE_IDLE;
-    rthm_playPattern(currentPattern);
-    */
-   //_______________________________   
 
    logic_forceUpdateScreen();
 }
@@ -185,7 +177,8 @@ static void stateMachineModePlaying(void)
                     logic_forceUpdateScreen();
                     mode = MODE_WRITING;
                     writingState = WRITING_STATE_INIT;
-                    rthm_stop(); // optional
+                    rthm_stop();
+                    frontp_resetSwState(SW_PLAY_WRITE);
                     return;
                 }
             }    
@@ -225,11 +218,7 @@ static void stateMachineModePlaying(void)
                 }
             }
             //_____________
-
-            // Current pattern selection
-            // leer encoder para cambiar de pattern actual (poner en pos 0 de la cadena y borrar la cadena actual o no)
-            //__________________________
-            
+           
             break;
         }
         case PLAYING_STATE_SELECT_NEXT_PATT:
@@ -307,15 +296,16 @@ static void stateMachineModeWriting(void)
         // if play/write sw was pressed, pass to playing mode
         if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
         {
-            Serial.println("MODO W. Presione playw. currentPattern:");
+            //Serial.println("MODO W. Presione playw. currentPattern:");
             currentPattern = patternToWrite; // start playing from last pattern written
-            Serial.println(currentPattern);
+            //Serial.println(currentPattern);
             display_showScreen(SCREEN_PLAYING);  
             logic_forceUpdateScreen();
             mode = MODE_PLAYING;
             playingState = PLAYING_STATE_IDLE;
             rthm_playPattern(currentPattern);
             frontp_setEncoderPosition(tempoEncoder0); 
+            frontp_resetSwState(SW_PLAY_WRITE);
             return;
         }
     }
@@ -335,8 +325,6 @@ static void stateMachineModeWriting(void)
         }      
         if(instrumentEncoder!=instrumentEncoder0)
         {
-            Serial.println("cambie encoder instrument!");
-            Serial.println(selectedInstrument);
             instrumentEncoder0 = instrumentEncoder;
             selectedInstrument=instrumentEncoder;
             logic_forceUpdateScreen();
@@ -359,7 +347,6 @@ static void stateMachineModeWriting(void)
         }      
         if(patternEncoder!=patternEncoder0)
         {
-            Serial.println("cambie encoder pattern!");
             patternEncoder0 = patternEncoder;
             patternToWrite = patternEncoder;
             writingState = WRITING_STATE_INIT;
@@ -385,8 +372,10 @@ static void stateMachineModeWriting(void)
                     rthm_writeSound(patternToWrite,patternToWriteStep,selectedInstrument);
                     inst_playInstrument(selectedInstrument);
                     patternToWriteStep++;
-                    if(patternToWriteStep>=16)
-                        writingState = WRITING_STATE_FINISHED; 
+                    if(patternToWriteStep>=rthm_getEndOfPattern(patternToWrite)) {
+                        mem_savePattern(patternToWrite,selectedInstrument,rthm_getPattern(patternToWrite,selectedInstrument)); // save into eeprom
+                        writingState = WRITING_STATE_FINISHED;
+                    } 
                 }
                 else
                 {
@@ -404,13 +393,16 @@ static void stateMachineModeWriting(void)
                 {
                     rthm_writeSilence(patternToWrite,patternToWriteStep,selectedInstrument);
                     patternToWriteStep++;
-                    if(patternToWriteStep>=rthm_getEndOfPattern(patternToWrite))
+                    if(patternToWriteStep>=rthm_getEndOfPattern(patternToWrite)) {
+                        mem_savePattern(patternToWrite,selectedInstrument,rthm_getPattern(patternToWrite,selectedInstrument)); // save into eeprom
                         writingState = WRITING_STATE_FINISHED; 
+                    }
                 }
                 else
                 {
                     rthm_setEndOfPattern(patternToWrite,16);
-                    rthm_cleanPattern(patternToWrite);
+                    mem_savePatternEnd(patternToWrite,16);
+                    rthm_cleanPattern(patternToWrite); // this function saves patterns in eeprom
                     writingState = WRITING_STATE_INIT;
                 }
                 frontp_resetSwState(SW_ESC);
@@ -421,10 +413,11 @@ static void stateMachineModeWriting(void)
            {
                 if(flagSwShiftState==1) // END OF PATTERN WAS PRESSED (shift+play/write button)
                 {
-                    rthm_setEndOfPattern(patternToWrite,patternToWriteStep);                  
-                    frontp_resetSwState(SW_PLAY_WRITE);
+                    rthm_setEndOfPattern(patternToWrite,patternToWriteStep);  
+                    mem_savePatternEnd(patternToWrite,patternToWriteStep);                
                     writingState = WRITING_STATE_FINISHED;
                 }
+                frontp_resetSwState(SW_PLAY_WRITE);
            }
             break;
         }
