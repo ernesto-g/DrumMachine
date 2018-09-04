@@ -414,7 +414,8 @@ static void stateMachineModeWriting(void)
                 if(flagSwShiftState==1) // END OF PATTERN WAS PRESSED (shift+play/write button)
                 {
                     rthm_setEndOfPattern(patternToWrite,patternToWriteStep);  
-                    mem_savePatternEnd(patternToWrite,patternToWriteStep);                
+                    mem_savePatternEnd(patternToWrite,patternToWriteStep);
+                    mem_savePattern(patternToWrite,selectedInstrument,rthm_getPattern(patternToWrite,selectedInstrument)); // save into eeprom                
                     writingState = WRITING_STATE_FINISHED;
                 }
                 frontp_resetSwState(SW_PLAY_WRITE);

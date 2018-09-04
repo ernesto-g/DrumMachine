@@ -197,7 +197,7 @@ static void showWritingScreen(void)
     display.setTextSize(1);
     display.print("ST:");
     display.setTextSize(2);
-    if(wPatternStep<=16)
+    if(wPatternStep<=rthm_getEndOfPattern(wPattern))
     {
       if(wPatternStep<10)
         display.print("0");
