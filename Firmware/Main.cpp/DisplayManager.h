@@ -10,3 +10,5 @@ void display_showScreen(unsigned char s);
 void display_loop(void);
 void display_update(void);
 
+void display_debug(void);
+

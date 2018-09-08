@@ -9,7 +9,9 @@
 #define PATTERNS_ENDS_ADDR_BASE  512
 // 32 patterns: 32 bytes
 
-#define FREE_ADDR_BASE  544 // free eeprom starts here
+#define MIDI_CHN_ADDR_BASE  544 
+
+#define FREE_ADDR_BASE  545 // free eeprom starts here
 
 
 void mem_init(void)
@@ -57,4 +59,13 @@ unsigned char mem_loadPatternEnd(unsigned char patternIndex)
     return val;
 }
    
+unsigned char mem_loadMidiChn(void)
+{
+    return EEPROM.read(MIDI_CHN_ADDR_BASE);
+}
+
+void mem_saveMidiChn(unsigned char val)
+{
+    EEPROM.update(MIDI_CHN_ADDR_BASE,val);  
+}
 

@@ -7,6 +7,7 @@
 #include "DisplayManager.h"
 #include "Icons.h"
 #include "Logic.h"
+#include "MidiManager.h"
 
 // icons
 extern const unsigned char PROGMEM logo16_play_bmp[];
@@ -244,6 +245,12 @@ static void showWritingScreen(void)
 static void showConfigScreen(void)
 {
     display.clearDisplay();  
+    display.setTextSize(2);
+    display.setTextColor(WHITE);
+    display.setCursor(0,0);
+    display.print("MIDI CHN:");
+    display.setCursor(0,16);
+    display.print(midi_getMidiChn());
   
 }
 

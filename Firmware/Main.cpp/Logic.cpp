@@ -5,6 +5,7 @@
 #include "Logic.h"
 #include "FrontPanel.h"
 #include "MemoryManager.h"
+#include "MidiManager.h"
 
 #define MODE_PLAYING        0
 #define MODE_WRITING        1
@@ -18,8 +19,8 @@
 #define PLAYING_STATE_SELECT_NEXT_PATT  1
 #define PLAYING_STATE_ADD_NEXT_PATT     2
  
-#define TEMPO_MIN 40
-#define TEMPO_MAX 250
+#define TEMPO_MIN 30
+#define TEMPO_MAX 350
 
 static unsigned char mode;
 static unsigned char writingState;
@@ -33,10 +34,10 @@ static unsigned char instrumentEncoder0;
 static unsigned char patternToWrite;
 static unsigned char patternEncoder0;
 static unsigned char patternToWriteStep;
-static unsigned char tempoEncoder0;
+static unsigned int tempoEncoder0;
 static signed char patternForChain;
 static signed char patternForChain0;
-
+static unsigned char chnEncoder0;
 
 static void stateMachineModePlaying(void);
 static void stateMachineModeWriting(void);
@@ -56,7 +57,7 @@ void logic_init(void)
     patternEncoder0=-1;
     patternToWriteStep=0;
     tempoEncoder0=-1;
-
+    chnEncoder0=-1;
 
     flagSwShiftState0=0;
     flagSwShiftState=0;
@@ -75,6 +76,7 @@ void logic_init(void)
 
 void logic_loop(void)
 {
+    midi_loop();
     frontp_loop();
     rthm_loop();
     inst_loop();
@@ -186,7 +188,7 @@ static void stateMachineModePlaying(void)
             // TEMPO selecion
             if(flagSwShiftState==0)
             {
-                unsigned char tempoEncoder = frontp_getEncoderPosition();
+                unsigned int tempoEncoder = frontp_getEncoderPosition();
                 if(tempoEncoder>TEMPO_MAX){
                     frontp_setEncoderPosition(TEMPO_MAX);
                     tempoEncoder=TEMPO_MAX;
@@ -308,6 +310,16 @@ static void stateMachineModeWriting(void)
             frontp_resetSwState(SW_PLAY_WRITE);
             return;
         }
+        if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_LONG)
+        {
+            display_showScreen(SCREEN_CONFIG);  
+            logic_forceUpdateScreen();
+            mode = MODE_CONFIGURATION;
+            frontp_resetSwState(SW_PLAY_WRITE);
+            frontp_setEncoderPosition(midi_getMidiChn());
+            return;          
+        }
+        
     }
     //__________________________________________________
     
@@ -431,7 +443,34 @@ static void stateMachineModeWriting(void)
 }
 static void stateMachineModeConfiguration(void)
 {
-  
+    int chnEncoder = frontp_getEncoderPosition();
+    if(chnEncoder>255){
+      frontp_setEncoderPosition(0);
+      chnEncoder=0;
+    }
+    if(chnEncoder<0){
+      frontp_setEncoderPosition(255);
+      chnEncoder = 255;
+    }      
+    if(chnEncoder!=chnEncoder0)
+    {
+        chnEncoder0 = chnEncoder;
+        midi_setMidiChn(chnEncoder);
+        logic_forceUpdateScreen();
+    }
+
+    // if play/write sw is pressed, pass to writing mode  
+    if(frontp_getSwState(SW_PLAY_WRITE)==FRONT_PANEL_SW_STATE_SHORT)
+    {
+        display_showScreen(SCREEN_WRITING);  
+        logic_forceUpdateScreen();
+        mode = MODE_WRITING;
+        writingState = WRITING_STATE_INIT;
+        rthm_stop();
+        frontp_resetSwState(SW_PLAY_WRITE);
+        mem_saveMidiChn(midi_getMidiChn());
+        return;
+    }
 }
 
 

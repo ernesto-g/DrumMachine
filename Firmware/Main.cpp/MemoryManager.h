@@ -7,3 +7,7 @@ unsigned short mem_loadPattern(unsigned char patternIndex,unsigned char instrInd
 void mem_savePatternEnd(unsigned char patternIndex,unsigned char value);
 unsigned char mem_loadPatternEnd(unsigned char patternIndex);
 
+unsigned char mem_loadMidiChn(void);
+void mem_saveMidiChn(unsigned char val);
+
+
