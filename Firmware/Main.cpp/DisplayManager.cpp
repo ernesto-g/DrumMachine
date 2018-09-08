@@ -142,13 +142,36 @@ static void showPlayingScreen(void)
     display.setTextColor(WHITE);
 
     display.setCursor(0,0);
-    if(currentPattern<10)
-      display.print("0");
-    display.print(currentPattern);
+    if(logic_getSwShiftState())
+    {
+      // show pending pattern
+      signed char pedingPat = logic_getPendingPatternToSet();      
+      if(pedingPat>=0)
+      {
+        if(pedingPat<10)
+          display.print("0");
+        display.print(pedingPat);        
+      }
+      else
+        display.print("-");
+
+      display.setTextSize(1);
+      display.setCursor(23,8);
+      display.print("nx");
+    }
+    else
+    {
+      // show current pattern
+      if(currentPattern<10)
+        display.print("0");
+      display.print(currentPattern);
+    }
+
     
     display.drawBitmap(0, 16,  logo16_play_bmp, 16, 16, 1);
 
-    display.setCursor(40,0);
+    display.setTextSize(2);
+    display.setCursor(42,0);
     display.print("STEP:");
     if(currentStep<=16)
     {

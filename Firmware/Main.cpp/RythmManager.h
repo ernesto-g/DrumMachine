@@ -23,6 +23,8 @@ int rthm_isNewStepFinished(void);
 void rthm_resetNewStepFinishedFlag(void);
 
 unsigned short rthm_getPattern(unsigned char patIndex,unsigned char instrIndex);
+void rthm_setPendingPattern(unsigned char nextPat);
+signed char rthm_getPendingPattern(void);
 
 void rthm_writeSound(unsigned char patIndex,unsigned char patternToWriteStep,unsigned char instrIndex);
 void rthm_writeSilence(unsigned char patIndex,unsigned char patternToWriteStep,unsigned char instrIndex);

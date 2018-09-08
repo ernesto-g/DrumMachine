@@ -3,6 +3,7 @@
 #include "InstrumentsManager.h"
 #include "DisplayManager.h"
 #include "MemoryManager.h"
+#include "Logic.h"
 
 #define SEC_TO_TICK(S)  (S*10000)
 
@@ -17,6 +18,8 @@ static unsigned char flagNewStepFinished;
 static unsigned char flagPlay;
 static signed char patternsChain[PATTERNS_CHAIN_LEN];
 static signed char patternChainIndex;
+
+static signed char pendingNextPattern;
 
 static void loadNextPatternInChain(void);
 static unsigned char getChainLen(void);
@@ -56,6 +59,8 @@ void rthm_init(void)
   patternChainIndex=-1;
   loadNextPatternInChain();
 
+  pendingNextPattern=-1;
+  
   flagPlay=0;
 }
 
@@ -113,6 +118,15 @@ int rthm_getCurrentPattern(void)
   return patternIndex;
 }
 
+void rthm_setPendingPattern(unsigned char nextPat)
+{
+    if(nextPat<PATTERNS_LEN)
+      pendingNextPattern = nextPat;
+}
+signed char rthm_getPendingPattern(void)
+{
+    return pendingNextPattern;
+}
 
 void rthm_stop(void)
 {
@@ -237,10 +251,27 @@ void rthm_resetNewStepFinishedFlag(void)
 
 static void loadNextPatternInChain(void)
 {
+    // pending pattern
+    if(pendingNextPattern!=-1)
+    {
+        patternIndex = pendingNextPattern;
+        if(getChainLen()==1)
+        {
+            patternsChain[0]=patternIndex;
+        }
+        pendingNextPattern=-1;
+        logic_resetPendingPatternToSet();
+        return;
+    }
+    //_________________
+
+    
+    //chain pattern
     patternChainIndex++;
     if(patternChainIndex>=getChainLen())
       patternChainIndex=0;
 
-    patternIndex=patternsChain[patternChainIndex];             
+    patternIndex=patternsChain[patternChainIndex];            
+    //_____________ 
 }
 

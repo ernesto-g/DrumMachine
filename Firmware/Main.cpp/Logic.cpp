@@ -38,6 +38,7 @@ static unsigned int tempoEncoder0;
 static signed char patternForChain;
 static signed char patternForChain0;
 static unsigned char chnEncoder0;
+static signed char nextPatEncoder0;
 
 static void stateMachineModePlaying(void);
 static void stateMachineModeWriting(void);
@@ -58,6 +59,7 @@ void logic_init(void)
     patternToWriteStep=0;
     tempoEncoder0=-1;
     chnEncoder0=-1;
+    nextPatEncoder0=-1;
 
     flagSwShiftState0=0;
     flagSwShiftState=0;
@@ -169,6 +171,21 @@ static void stateMachineModePlaying(void)
     {
         case PLAYING_STATE_IDLE:
         {
+              // shift sw changed. set initial value for encoder counter
+              if(flagSwShiftState0!=flagSwShiftState)
+              {
+                  flagSwShiftState0=flagSwShiftState;
+                  if(flagSwShiftState==0)
+                  {
+                    frontp_setEncoderPosition(tempoEncoder0);
+                    rthm_setPendingPattern(nextPatEncoder0); // shift release, set pending pattern selected to rhm manager
+                  }
+                  else
+                    frontp_setEncoderPosition(nextPatEncoder0);    
+              }
+              //________________________________________________________
+
+
             //Change mode to writing
             if(flagSwShiftState==0)
             {
@@ -201,6 +218,26 @@ static void stateMachineModePlaying(void)
                 {
                     tempoEncoder0 = tempoEncoder;
                     rthm_setTempo(tempoEncoder);
+                    logic_forceUpdateScreen();
+                }
+            }
+            //_____________________________________________
+
+            // Next pattern selecion
+            if(flagSwShiftState==1)
+            {
+                int nextPatEncoder = frontp_getEncoderPosition();
+                if(nextPatEncoder>=PATTERNS_LEN){
+                    frontp_setEncoderPosition(0);
+                    nextPatEncoder=0;
+                }
+                if(nextPatEncoder<-1){
+                    frontp_setEncoderPosition(PATTERNS_LEN-1);
+                    nextPatEncoder = PATTERNS_LEN-1;
+                }      
+                if(nextPatEncoder!=nextPatEncoder0)
+                {
+                    nextPatEncoder0 = nextPatEncoder;
                     logic_forceUpdateScreen();
                 }
             }
@@ -257,7 +294,8 @@ static void stateMachineModePlaying(void)
                 {
                     playingState = PLAYING_STATE_IDLE;
                     display_showScreen(SCREEN_PLAYING);
-                    frontp_setEncoderPosition(tempoEncoder0);                                       
+                    nextPatEncoder0=-1;
+                    frontp_setEncoderPosition(nextPatEncoder0);                                                           
                     frontp_resetSwState(SW_PLAY_WRITE);
                 }   
             }         
@@ -473,5 +511,12 @@ static void stateMachineModeConfiguration(void)
     }
 }
 
-
+signed char logic_getPendingPatternToSet(void)
+{
+    return nextPatEncoder0;
+}
+void logic_resetPendingPatternToSet(void)
+{
+    nextPatEncoder0=-1;
+}
 
