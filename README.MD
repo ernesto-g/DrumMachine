@@ -22,7 +22,7 @@ Supported features:
 	  
 ## Block diagram
 
-![alt text](https://raw.githubusercontent.com/ernesto-g/DrumMachine/master/OtherFiles/BlockDiagram.jpg)
+![alt text](https://raw.githubusercontent.com/ernesto-g/DrumMachine/master/OtherFiles/BlockDiagram.png)
   
 ### This project contains:
   - Arduino Nano Firmware
