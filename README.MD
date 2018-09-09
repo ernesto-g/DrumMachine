@@ -12,7 +12,7 @@ Supported features:
     - Snare Drum
     - Hand Clap
     - Open Hi-Hat
-    - Close Hi-Hat
+    - Closed Hi-Hat
     - Claves	
   - 32 non volatile patterns
   - 16 steps per pattern
@@ -31,7 +31,7 @@ Supported features:
     - Rotary Encoder: http://www.mathertel.de/Arduino
   - Schematics 
   - Pictures   
-  - Front and back panel blueprints
+  - Front panel blueprints
 
 
 ## Usage
