@@ -41,13 +41,18 @@ The device is in write mode when it turns on. Press shift button and move the en
 There is 32 possible patterns. Release shift button and move instrument knob to select the current instrument.
 Instrument indicator will change among the 7 possible instruments (BD,SD,CP,OH,CH,CL,TO). Step indicator will be 1.
 Use "add" or "delete" buttons to select if the instrument will play or there will be a silence for that step. Step counter will increase.
-There are 16 steps in the pattern. Once 16 steps were selected, a "-" symbol will appear in the step indicator.
+There are 16 steps in the pattern. Once 16 steps have been selected, a "-" symbol will appear in the step indicator.
 Repeat the operation for each instrument.
-You can end the pattern before 16 steps pressing shift and the "end" button.
+You can end the pattern before 16 steps by pressing shift and then the "end" button.
  
 ### Playing a rythm
-Press "Play" button and the pattern will be played in loop mode. In playing mode
- 
+Press "Play" button and the pattern will be played in loop mode. In playing mode you can press shift and select the next pattern to be played using the pattern knob. 
+Once the current pattern finishes, the selected one will start.
+
+### Playing a pattern chain
+In playing mode, press shift and "chain" button. The screen will show the pattern chain. Select a pattern to add to the chain using the pattern knob and press "add" button to add it.
+You can delete the last element of the chain by pressing shift and then "delete" button. To go back to the playing screen press shift and then "chain" button.
+
 
 ### MIDI Input map (TR808-M Compatible)
 
