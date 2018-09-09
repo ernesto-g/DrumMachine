@@ -36,10 +36,33 @@ Supported features:
 
 ## Usage
 
-TODO
+### Writing a rythm
+The device is in write mode when it turns on. Press shift button and move the encoder knob to select the pattern to be written. 
+There is 32 possible patterns. Release shift button and move instrument knob to select the current instrument.
+Instrument indicator will change among the 7 possible instruments (BD,SD,CP,OH,CH,CL,TO). Step indicator will be 1.
+Use "add" or "delete" buttons to select if the instrument will play or there will be a silence for that step. Step counter will increase.
+There are 16 steps in the pattern. Once 16 steps were selected, a "-" symbol will appear in the step indicator.
+Repeat the operation for each instrument.
+You can end the pattern before 16 steps pressing shift and the "end" button.
+ 
+### Playing a rythm
+Press "Play" button and the pattern will be played in loop mode. In playing mode
+ 
+
+### MIDI Input map (TR808-M Compatible)
+
+Press play/write button for 3 seconds and the screen will show the current MIDI channel. Use the tempo knob to change it. Press play/write button to save it.
+
+  - Bass Drum: 33, 35, 36
+  - Snare Drum: 31, 38, 40
+  - Hand Clap: 39, 54, 69, 70, 82
+  - Open Hi-Hat: 44, 46, 53
+  - Closed Hi-Hat: 42 
+  - Claves: 32, 34, 37, 75
+  - Trigger Out Output: 48  
 
   
-### License
+## License
   
 Arduino Analog Drum Machine
 Copyright (C) <2018>  Ernesto Gigliotti <ernestogigliotti@gmail.com>
