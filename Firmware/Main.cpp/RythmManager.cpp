@@ -211,6 +211,20 @@ void rthm_addPatternToChain(unsigned char newPattern)
         }
     }
 }
+
+void rthm_copyPattern(unsigned char destPattIndex,unsigned char originPattIndex)
+{
+    unsigned char i;
+    for(i=0;i<INSTRUMENTS_LEN_WITH_ACC;i++)
+    {
+        patterns[destPattIndex][i]=patterns[originPattIndex][i];
+        mem_savePattern(destPattIndex,i,patterns[destPattIndex][i]); // save into eeprom
+    }
+    
+    patternsEndStep[destPattIndex] = patternsEndStep[originPattIndex];
+    mem_savePatternEnd(destPattIndex,patternsEndStep[destPattIndex]);// save into eeprom    
+}
+
 static unsigned char getChainLen(void)
 {
     int i;

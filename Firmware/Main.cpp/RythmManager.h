@@ -54,5 +54,7 @@ void rthm_removeLastPatternInChain(void);
 void rthm_addPatternToChain(unsigned char newPattern);
 signed char* rthm_getPatternsChain(void);
 
+void rthm_copyPattern(unsigned char destPattIndex,unsigned char originPattIndex);
+
 
 

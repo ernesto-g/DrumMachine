@@ -55,6 +55,7 @@ static void showPlayingScreen(void);
 static void showWritingScreen(void);
 static void showConfigScreen(void);
 static void showChainScreen(void);
+static void showCpyPattScreen(void);
 
 
 void display_init(void)
@@ -97,6 +98,10 @@ void display_loop(void)
             case SCREEN_CHAIN:
             {
                 showChainScreen();
+            }
+            case SCREEN_COPY_PATTERN:
+            {
+                showCpyPattScreen();
             }
         }
           
@@ -295,4 +300,15 @@ static void showConfigScreen(void)
   
 }
 
+static void showCpyPattScreen(void)
+{
+    display.clearDisplay();  
+    display.setTextSize(2);
+    display.setTextColor(WHITE);
+    display.setCursor(0,0);
+    display.print("COPY TO");
+    display.setCursor(0,16);
+    display.print("PATT:");
+    display.print(logic_getPatternToCpy());  
+}
 

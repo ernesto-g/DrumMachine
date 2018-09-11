@@ -26,4 +26,5 @@ int logic_getWritingPatternStep(void);
 unsigned char logic_getPatternForChain(void);
 signed char logic_getPendingPatternToSet(void);
 void logic_resetPendingPatternToSet(void);
+unsigned char logic_getPatternToCpy(void);
 
