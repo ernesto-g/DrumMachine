@@ -275,7 +275,7 @@ static void showWritingScreen(void)
     display.drawLine(0, 30, 127, 30, WHITE);
     unsigned short patt = rthm_getPattern(wPattern,logic_getSelectedInstrument());
     unsigned char i;
-    for(i=0; i<16; i++)
+    for(i=0; i<rthm_getEndOfPattern(wPattern); i++)
     {
         if( (patt&0x0001)==0x0001)
           display.fillRect( (i*8) + 2, 23, 4, 6, WHITE);
