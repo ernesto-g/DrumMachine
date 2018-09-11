@@ -44,6 +44,10 @@ Use "add" or "delete" buttons to select if the instrument will play or there wil
 There are 16 steps in the pattern. Once 16 steps have been selected, a "-" symbol will appear in the step indicator.
 Repeat the operation for each instrument.
 You can end the pattern before 16 steps by pressing shift and then the "end" button.
+
+### Copying a rythm
+Press "add" button for 3 seconds and the screen will show where the current pattern will be copied. Select the destination pattern using
+the tempo knob. Press "add" button again to save it.
  
 ### Playing a rythm
 Press "Play" button and the pattern will be played in loop mode. In playing mode you can press shift and select the next pattern to be played using the pattern knob. 
