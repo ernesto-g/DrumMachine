@@ -98,10 +98,12 @@ void display_loop(void)
             case SCREEN_CHAIN:
             {
                 showChainScreen();
+                break;
             }
             case SCREEN_COPY_PATTERN:
             {
                 showCpyPattScreen();
+                break;
             }
         }
           
